@@ -1,0 +1,40 @@
+BasedOnStyle: LLVM
+Standard: c++20
+
+IndentWidth: 2
+TabWidth: 2
+UseTab: Never
+ContinuationIndentWidth: 2
+ColumnLimit: 120
+
+BreakBeforeBraces: Allman
+
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+AllowShortBlocksOnASingleLine: Never
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: None
+AllowShortLambdasOnASingleLine: None
+
+SpacesInAngles: true
+
+PointerAlignment: Right
+ReferenceAlignment: Right
+DerivePointerAlignment: false
+
+BreakConstructorInitializers: AfterColon
+ConstructorInitializerIndentWidth: 2
+SpaceBeforeCtorInitializerColon: false
+
+MaxEmptyLinesToKeep: 1
+AlignAfterOpenBracket: Align
+AlignConsecutiveAssignments: false
+AlignConsecutiveDeclarations: false
+AlignOperands: Align
+AlignTrailingComments: true
+BinPackArguments: true
+BinPackParameters: true
+IndentCaseLabels: false
+NamespaceIndentation: None
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeParens: ControlStatements
