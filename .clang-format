@@ -15,7 +15,6 @@ AllowShortBlocksOnASingleLine: Never
 AllowShortCaseLabelsOnASingleLine: false
 AllowShortFunctionsOnASingleLine: None
 AllowShortLambdasOnASingleLine: None
-InsertBraces: true
 
 SpacesInAngles: true
 
@@ -25,7 +24,6 @@ DerivePointerAlignment: false
 
 BreakConstructorInitializers: AfterColon
 ConstructorInitializerIndentWidth: 2
-PackConstructorInitializers: Never
 SpaceBeforeCtorInitializerColon: false
 
 MaxEmptyLinesToKeep: 1
