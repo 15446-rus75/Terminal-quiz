@@ -10,12 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - name: Install clang-format
         run: |
           sudo apt-get update
           sudo apt-get install -y clang-format
-
       - name: Check formatting
         run: |
           set -e
@@ -31,23 +29,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - name: Install cppcheck
         run: |
           sudo apt-get update
           sudo apt-get install -y cppcheck
-
       - name: Run cppcheck
         run: |
           if [ ! -d src ] || [ -z "$(find src -name '*.cpp' 2>/dev/null)" ]; then
-            echo "src/ пустой — пропускаю"
+            echo "rc/ пустой — пропускаю"
             exit 0
           fi
           cppcheck --enable=warning,style,performance,portability --inconclusive --force \
                    --template='{file}:{line}: ({severity}) {message} [{id}]' \
                    --std=c++20 --language=c++ \
-                   --suppress=missingIncludeSystem \
-                   --suppress=unknownMacro \
                    --error-exitcode=1 \
                    src/
           echo "Cppcheck пройден"
@@ -58,19 +52,21 @@ jobs:
     continue-on-error: true
     steps:
       - uses: actions/checkout@v4
-
       - name: Install clang-tidy and third-party headers
         run: |
           sudo apt-get update
           sudo apt-get install -y clang-tidy \
             libpqxx-dev libcurl4-openssl-dev nlohmann-json3-dev libboost-test-dev
-
       - name: Run clang-tidy
         run: |
-          if [ ! -d src ] || [ -z "$(find src -name '*.cpp' 2>/dev/null)" ]; then
-            echo "src/ пустой — пропускаю"
+          if [ ! -d src ]; then
+            echo "rc/ отсутствует — пропускаю"
             exit 0
           fi
-          find src -name '*.cpp' -print0 \
-            | xargs -0 -r clang-tidy --quiet -- -std=c++20 -Isrc
+          files=$(find src -name '*.cpp' 2>/dev/null)
+          if [ -z "$files" ]; then
+            echo " src/ нет .cpp файлов — пропускаю"
+            exit 0
+          fi
+          echo "$files" | xargs clang-tidy --quiet -- -std=c++20 -Isrc
           echo "clang-tidy пройден"
