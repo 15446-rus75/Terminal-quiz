@@ -1,0 +1,75 @@
+name: Code Quality (text-only)
+
+on:
+  pull_request:
+  push:
+
+jobs:
+  format:
+    name: clang-format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install clang-format
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang-format
+
+      - name: Check formatting
+        run: |
+          set -e
+          if ! find src test \( -name '*.cpp' -o -name '*.hpp' -o -name '*.h' \) -print0 2>/dev/null \
+            | xargs -0 -r clang-format --dry-run --Werror; then
+            echo "Форматирование некорректно!"
+            echo "Запусти локально: make fix-format"
+            exit 1
+          fi
+          echo "Форматирование корректно"
+
+  cppcheck:
+    name: cppcheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install cppcheck
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cppcheck
+
+      - name: Run cppcheck
+        run: |
+          if [ ! -d src ]; then
+            exit 0
+          fi
+          cppcheck --enable=all --inconclusive --force \
+                   --template='{file}:{line}: ({severity}) {message} [{id}]' \
+                   --std=c++20 --language=c++ \
+                   --suppress=missingIncludeSystem \
+                   --suppress=unknownMacro \
+                   --error-exitcode=1 \
+                   src/
+          echo "Cppcheck пройден"
+
+  clang-tidy:
+    name: clang-tidy (advisory until project compiles)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install clang-tidy and third-party headers
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang-tidy \
+            libpqxx-dev libcurl4-openssl-dev nlohmann-json3-dev libboost-test-dev
+
+      - name: Run clang-tidy
+        run: |
+          if [ ! -d src ] || [ -z "$(find src -name '*.cpp' 2>/dev/null)" ]; then
+            exit 0
+          fi
+          find src -name '*.cpp' -print0 \
+            | xargs -0 clang-tidy --quiet -- -std=c++20 -Isrc
+          echo "clang-tidy пройден"
