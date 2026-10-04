@@ -60,13 +60,12 @@ jobs:
       - name: Run clang-tidy
         run: |
           if [ ! -d src ]; then
-            echo "rc/ отсутствует — пропускаю"
+            echo "⚠️rc/ отсутствует — пропускаю"
             exit 0
           fi
-          files=$(find src -name '*.cpp' 2>/dev/null)
-          if [ -z "$files" ]; then
-            echo " src/ нет .cpp файлов — пропускаю"
+          if [ -z "$(find src -name '*.cpp' 2>/dev/null)" ]; then
+            echo "⚠️ src/ нет .cpp файлов — пропускаю"
             exit 0
           fi
-          echo "$files" | xargs clang-tidy --quiet -- -std=c++20 -Isrc
+          find src -name '*.cpp' -exec clang-tidy --quiet {} -- -std=c++20 -Isrc \;
           echo "clang-tidy пройден"
