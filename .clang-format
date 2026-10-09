@@ -35,6 +35,8 @@ AlignTrailingComments: true
 BinPackArguments: true
 BinPackParameters: true
 IndentCaseLabels: false
-NamespaceIndentation: None
+NamespaceIndentation: All
 SpaceBeforeAssignmentOperators: true
 SpaceBeforeParens: ControlStatements
+FixNamespaceComments: false
+SpaceBeforeInheritanceColon: false
