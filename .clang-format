@@ -38,5 +38,16 @@ IndentCaseLabels: false
 NamespaceIndentation: All
 SpaceBeforeAssignmentOperators: true
 SpaceBeforeParens: ControlStatements
+<<<<<<< HEAD
 FixNamespaceComments: false
 SpaceBeforeInheritanceColon: false
+
+IncludeBlocks: Regroup
+IncludeCategories:
+  - Regex: '<[a-z_]+>'
+    Priority: 1
+  - Regex: '<[a-z_/]+\.h>'
+    Priority: 1
+  - Regex: '.*'
+    Priority: 2
+SortIncludes: CaseSensitive
