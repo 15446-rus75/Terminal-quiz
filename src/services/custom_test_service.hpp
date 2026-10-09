@@ -1,15 +1,16 @@
 #ifndef CUSTOM_TEST_SERVICE_HPP
 #define CUSTOM_TEST_SERVICE_HPP
 
-#include "../core/custom_test.hpp"
-#include "../core/question.hpp"
-#include "../db/i_custom_test_repository.hpp"
-#include "../db/i_question_repository.hpp"
 #include <cstdint>
 #include <memory>
 #include <optional>
 #include <string>
 #include <vector>
+
+#include "../core/custom_test.hpp"
+#include "../core/question.hpp"
+#include "../db/i_custom_test_repository.hpp"
+#include "../db/i_question_repository.hpp"
 
 namespace quiz
 {

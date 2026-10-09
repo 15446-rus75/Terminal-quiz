@@ -1,9 +1,10 @@
 #ifndef IATTEMPT_REPOSITORY_HPP
 #define IATTEMPT_REPOSITORY_HPP
 
-#include "../core/attempt.hpp"
 #include <cstdint>
 #include <vector>
+
+#include "../core/attempt.hpp"
 
 namespace quiz
 {

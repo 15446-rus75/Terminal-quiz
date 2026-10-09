@@ -1,9 +1,10 @@
 #ifndef IFAVORITE_REPOSITORY_HPP
 #define IFAVORITE_REPOSITORY_HPP
 
-#include "../core/question.hpp"
 #include <cstdint>
 #include <vector>
+
+#include "../core/question.hpp"
 
 namespace quiz
 {

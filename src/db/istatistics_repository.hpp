@@ -1,9 +1,10 @@
 #ifndef ISTATISTICS_REPOSITORY_HPP
 #define ISTATISTICS_REPOSITORY_HPP
 
-#include "../core/statistics.hpp"
 #include <cstdint>
 #include <vector>
+
+#include "../core/statistics.hpp"
 
 namespace quiz
 {

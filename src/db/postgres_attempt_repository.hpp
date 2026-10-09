@@ -1,12 +1,13 @@
 #ifndef POSTGRES_ATTEMPT_REPOSITORY_HPP
 #define POSTGRES_ATTEMPT_REPOSITORY_HPP
 
-#include "iattempt_repository.hpp"
-#include "idatabase.hpp"
 #include <cstdint>
 #include <memory>
 #include <optional>
 #include <vector>
+
+#include "iattempt_repository.hpp"
+#include "idatabase.hpp"
 
 namespace quiz
 {

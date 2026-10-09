@@ -1,11 +1,12 @@
 #ifndef POSTGRES_FAVORITE_REPOSITORY_HPP
 #define POSTGRES_FAVORITE_REPOSITORY_HPP
 
-#include "idatabase.hpp"
-#include "ifavorite_repository.hpp"
 #include <cstdint>
 #include <memory>
 #include <vector>
+
+#include "idatabase.hpp"
+#include "ifavorite_repository.hpp"
 
 namespace quiz
 {

@@ -1,11 +1,12 @@
 #ifndef POSTGRES_STATISTICS_REPOSITORY_HPP
 #define POSTGRES_STATISTICS_REPOSITORY_HPP
 
-#include "idatabase.hpp"
-#include "istatistics_repository.hpp"
 #include <cstdint>
 #include <memory>
 #include <vector>
+
+#include "idatabase.hpp"
+#include "istatistics_repository.hpp"
 
 namespace quiz
 {

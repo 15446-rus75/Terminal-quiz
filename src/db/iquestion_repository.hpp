@@ -1,12 +1,13 @@
 #ifndef IQUESTION_REPOSITORY_HPP
 #define IQUESTION_REPOSITORY_HPP
 
-#include "../core/enums.hpp"
-#include "../core/question.hpp"
 #include <cstdint>
 #include <optional>
 #include <string>
 #include <vector>
+
+#include "../core/enums.hpp"
+#include "../core/question.hpp"
 
 namespace quiz
 {

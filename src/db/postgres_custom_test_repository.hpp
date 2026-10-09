@@ -1,12 +1,13 @@
 #ifndef POSTGRES_CUSTOM_TEST_REPOSITORY_HPP
 #define POSTGRES_CUSTOM_TEST_REPOSITORY_HPP
 
-#include "icustom_test_repository.hpp"
-#include "idatabase.hpp"
 #include <cstdint>
 #include <memory>
 #include <optional>
 #include <vector>
+
+#include "icustom_test_repository.hpp"
+#include "idatabase.hpp"
 
 namespace quiz
 {

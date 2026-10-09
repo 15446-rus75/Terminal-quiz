@@ -1,13 +1,14 @@
 #ifndef POSTGRES_QUESTION_REPOSITORY_HPP
 #define POSTGRES_QUESTION_REPOSITORY_HPP
 
-#include "idatabase.hpp"
-#include "iquestion_repository.hpp"
 #include <cstdint>
 #include <memory>
 #include <optional>
 #include <string>
 #include <vector>
+
+#include "idatabase.hpp"
+#include "iquestion_repository.hpp"
 
 namespace quiz
 {

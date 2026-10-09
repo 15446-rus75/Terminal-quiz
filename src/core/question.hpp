@@ -1,10 +1,11 @@
 #ifndef QUESTION_HPP
 #define QUESTION_HPP
 
-#include "enums.hpp"
 #include <cstdint>
 #include <string>
 #include <vector>
+
+#include "enums.hpp"
 
 namespace quiz
 {

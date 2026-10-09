@@ -1,14 +1,15 @@
 #ifndef QUESTION_SERVICE_HPP
 #define QUESTION_SERVICE_HPP
 
+#include <cstdint>
+#include <memory>
+#include <vector>
+
 #include "../api/open_tdb_client.hpp"
 #include "../core/enums.hpp"
 #include "../core/question.hpp"
 #include "../db/i_question_repository.hpp"
 #include "../util/lru_cache.hpp"
-#include <cstdint>
-#include <memory>
-#include <vector>
 
 namespace quiz
 {

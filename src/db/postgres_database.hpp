@@ -1,9 +1,10 @@
 #ifndef POSTGRES_DATABASE_HPP
 #define POSTGRES_DATABASE_HPP
 
-#include "idatabase.hpp"
 #include <memory>
 #include <string>
+
+#include "idatabase.hpp"
 
 namespace quiz
 {

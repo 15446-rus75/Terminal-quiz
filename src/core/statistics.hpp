@@ -1,8 +1,9 @@
 #ifndef STATISTICS_HPP
 #define STATISTICS_HPP
 
-#include "enums.hpp"
 #include <cstdint>
+
+#include "enums.hpp"
 
 namespace quiz
 {
