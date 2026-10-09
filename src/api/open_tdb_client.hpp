@@ -1,12 +1,12 @@
 #ifndef OPEN_TDB_CLIENT_HPP
 #define OPEN_TDB_CLIENT_HPP
 
+#include "../core/enums.hpp"
+#include "../core/question.hpp"
 #include <cstdint>
 #include <optional>
 #include <string>
 #include <vector>
-#include "../core/enums.hpp"
-#include "../core/question.hpp"
 
 namespace quiz
 {
