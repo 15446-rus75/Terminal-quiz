@@ -55,7 +55,7 @@ namespace quiz
     std::string toString(Difficulty difficulty);
     std::string toString(QuestionType type);
     std::string toString(Category category);
-  } // namespace core
-} // namespace quiz
+  }
+}
 
 #endif

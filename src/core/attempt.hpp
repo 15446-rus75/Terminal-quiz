@@ -30,7 +30,7 @@ namespace quiz
       std::chrono::system_clock::time_point finished_at;
       std::vector< AttemptAnswer > answers;
     };
-  } // namespace core
-} // namespace quiz
+  }
+}
 
 #endif
