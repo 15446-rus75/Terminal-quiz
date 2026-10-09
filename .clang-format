@@ -38,7 +38,6 @@ IndentCaseLabels: false
 NamespaceIndentation: All
 SpaceBeforeAssignmentOperators: true
 SpaceBeforeParens: ControlStatements
-<<<<<<< HEAD
 FixNamespaceComments: false
 SpaceBeforeInheritanceColon: false
 
