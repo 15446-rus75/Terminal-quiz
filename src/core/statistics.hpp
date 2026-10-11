@@ -1,7 +1,7 @@
 #ifndef STATISTICS_HPP
 #define STATISTICS_HPP
 
-#include <cstdint>
+#include <cstddef>
 
 #include "enums.hpp"
 

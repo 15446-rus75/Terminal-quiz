@@ -1,6 +1,7 @@
 #ifndef POSTGRES_DATABASE_HPP
 #define POSTGRES_DATABASE_HPP
 
+#include <cstdint>
 #include <memory>
 #include <string>
 
@@ -13,7 +14,7 @@ namespace quiz
     class PostgresDatabase: public IDatabase
     {
     public:
-      PostgresDatabase(const std::string &host, std::size_t port, const std::string &dbname, const std::string &user,
+      PostgresDatabase(const std::string &host, size_t port, const std::string &dbname, const std::string &user,
                        const std::string &password);
       ~PostgresDatabase() override;
       std::shared_ptr< IConnection > getConnection() override;

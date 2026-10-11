@@ -1,8 +1,7 @@
 #ifndef OPEN_TDB_CLIENT_HPP
 #define OPEN_TDB_CLIENT_HPP
 
-#include <cstdint>
-#include <optional>
+#include <cstddef>
 #include <string>
 #include <vector>
 
@@ -16,9 +15,9 @@ namespace quiz
     struct OpenTdbRequest
     {
       size_t amount;
-      Category category;
-      Difficulty difficulty;
-      QuestionType type;
+      core::Category category;
+      core::Difficulty difficulty;
+      core::QuestionType type;
     };
 
     class IOpenTdbClient

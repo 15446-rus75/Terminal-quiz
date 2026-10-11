@@ -1,12 +1,12 @@
 #ifndef STATISTICS_SERVICE_HPP
 #define STATISTICS_SERVICE_HPP
 
-#include <cstdint>
+#include <cstddef>
 #include <memory>
 #include <vector>
 
 #include "../core/statistics.hpp"
-#include "../db/i_statistics_repository.hpp"
+#include "../db/istatistics_repository.hpp"
 
 namespace quiz
 {

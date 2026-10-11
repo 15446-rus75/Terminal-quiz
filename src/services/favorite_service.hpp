@@ -1,12 +1,12 @@
 #ifndef FAVORITE_SERVICE_HPP
 #define FAVORITE_SERVICE_HPP
 
-#include <cstdint>
+#include <cstddef>
 #include <memory>
 #include <vector>
 
 #include "../core/question.hpp"
-#include "../db/i_favorite_repository.hpp"
+#include "../db/ifavorite_repository.hpp"
 
 namespace quiz
 {

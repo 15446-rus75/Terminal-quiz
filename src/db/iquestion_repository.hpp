@@ -1,7 +1,7 @@
 #ifndef IQUESTION_REPOSITORY_HPP
 #define IQUESTION_REPOSITORY_HPP
 
-#include <cstdint>
+#include <cstddef>
 #include <optional>
 #include <string>
 #include <vector>
@@ -22,8 +22,8 @@ namespace quiz
                                                          size_t limit) = 0;
       virtual std::vector< core::Question > searchByText(const std::string &query, core::Category category,
                                                          core::Difficulty difficulty, size_t limit) = 0;
-      virtual void save(const core::Question &question) = 0;
-      virtual void saveBatch(const std::vector< core::Question > &questions) = 0;
+      virtual size_t save(const core::Question &question) = 0;
+      virtual std::vector< size_t > saveBatch(const std::vector< core::Question > &questions) = 0;
       virtual size_t count() = 0;
     };
   }

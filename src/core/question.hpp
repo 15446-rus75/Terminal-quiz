@@ -1,7 +1,7 @@
 #ifndef QUESTION_HPP
 #define QUESTION_HPP
 
-#include <cstdint>
+#include <cstddef>
 #include <string>
 #include <vector>
 
@@ -24,7 +24,7 @@ namespace quiz
       std::vector< std::string > allAnswers() const;
       bool isCorrectAnswer(const std::string &user_answer) const;
     };
-  } // namespace core
-} // namespace quiz
+  }
+}
 
 #endif
