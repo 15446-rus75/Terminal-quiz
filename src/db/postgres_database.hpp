@@ -14,7 +14,7 @@ namespace quiz
     class PostgresDatabase: public IDatabase
     {
     public:
-      PostgresDatabase(const std::string &host, std::uint16_t port, const std::string &dbname, const std::string &user,
+      PostgresDatabase(const std::string &host, size_t port, const std::string &dbname, const std::string &user,
                        const std::string &password);
       ~PostgresDatabase() override;
       std::shared_ptr< IConnection > getConnection() override;

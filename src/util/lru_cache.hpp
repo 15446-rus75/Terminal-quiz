@@ -16,11 +16,11 @@ namespace quiz
     class LruCache
     {
     public:
-      explicit LruCache(std::size_t capacity);
+      explicit LruCache(size_t capacity);
       void put(const Key &key, const Value &value);
       std::optional< Value > get(const Key &key);
       bool contains(const Key &key) const;
-      std::size_t size() const;
+      size_t size() const;
       void clear();
 
     private:
@@ -29,7 +29,7 @@ namespace quiz
       void moveToFront(const Key &key);
       void evictLeastRecent();
 
-      std::size_t capacity_;
+      size_t capacity_;
       std::list< std::pair< Key, Value > > items_;
       std::unordered_map< Key, ListIterator, Hash > index_;
     };
