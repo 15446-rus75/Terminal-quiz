@@ -38,7 +38,7 @@ IndentCaseLabels: false
 NamespaceIndentation: All
 SpaceBeforeAssignmentOperators: true
 SpaceBeforeParens: ControlStatements
-BreakTemplateDeclarations: Yes
+AlwaysBreakTemplateDeclarations: Yes
 FixNamespaceComments: false
 SpaceBeforeInheritanceColon: false
 IncludeBlocks: Regroup
