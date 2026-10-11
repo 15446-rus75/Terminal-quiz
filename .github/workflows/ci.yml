@@ -17,12 +17,22 @@ jobs:
       - name: Check formatting
         run: |
           set -e
-          if ! find src test \( -name '*.cpp' -o -name '*.hpp' -o -name '*.h' \) -print0 2>/dev/null \
+          if ! find src \( -name '*.cpp' -o -name '*.hpp' -o -name '*.h' \) -print0 2>/dev/null \
             | xargs -0 -r clang-format --dry-run --Werror; then
             echo "Форматирование некорректно!"
             exit 1
           fi
           echo "Форматирование корректно"
+
+  headers:
+    name: headers (self-contained)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check that every header compiles on its own
+        run: |
+          make check-headers
+          echo "Заголовки корректны"
 
   cppcheck:
     name: cppcheck
@@ -35,14 +45,15 @@ jobs:
           sudo apt-get install -y cppcheck
       - name: Run cppcheck
         run: |
-          if [ ! -d src ] || [ -z "$(find src -name '*.cpp' 2>/dev/null)" ]; then
-            echo "rc/ пустой — пропускаю"
+          if [ ! -d src ] || [ -z "$(find src -path src/test -prune -o -name '*.cpp' -print 2>/dev/null)" ]; then
+            echo "src/ пустой — пропускаю"
             exit 0
           fi
           cppcheck --enable=warning,style,performance,portability --inconclusive --force \
                    --template='{file}:{line}: ({severity}) {message} [{id}]' \
                    --std=c++20 --language=c++ \
                    --error-exitcode=1 \
+                   -i src/test \
                    src/
           echo "Cppcheck пройден"
 
@@ -60,12 +71,13 @@ jobs:
       - name: Run clang-tidy
         run: |
           if [ ! -d src ]; then
-            echo "⚠️rc/ отсутствует — пропускаю"
+            echo "rc/ отсутствует — пропускаю"
             exit 0
           fi
-          if [ -z "$(find src -name '*.cpp' 2>/dev/null)" ]; then
-            echo "⚠️ src/ нет .cpp файлов — пропускаю"
+          if [ -z "$(find src -path src/test -prune -o -name '*.cpp' -print 2>/dev/null)" ]; then
+            echo " src/ нет .cpp файлов — пропускаю"
             exit 0
           fi
-          find src -name '*.cpp' -exec clang-tidy --quiet {} -- -std=c++20 -Isrc \;
+          find src -path src/test -prune -o -name '*.cpp' -print0 \
+            | xargs -0 -r -I {} clang-tidy --quiet {} -- -std=c++20 -Isrc
           echo "clang-tidy пройден"
