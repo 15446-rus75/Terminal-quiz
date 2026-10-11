@@ -1,13 +1,14 @@
 #ifndef LOGGER_HPP
 #define LOGGER_HPP
 
+#include <cstdint>
 #include <string>
 
 namespace quiz
 {
   namespace util
   {
-    enum class LogLevel : std::uint8_t
+    enum class LogLevel
     {
       DEBUG = 0,
       INFO = 1,
