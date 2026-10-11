@@ -1,7 +1,7 @@
 #ifndef ISTATISTICS_REPOSITORY_HPP
 #define ISTATISTICS_REPOSITORY_HPP
 
-#include <cstdint>
+#include <cstddef>
 #include <vector>
 
 #include "../core/statistics.hpp"

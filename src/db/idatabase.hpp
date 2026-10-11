@@ -3,11 +3,15 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 
 namespace quiz
 {
   namespace db
   {
+    using Row = std::vector< std::string >;
+    using ResultSet = std::vector< Row >;
+
     class IConnection
     {
     public:
@@ -16,6 +20,7 @@ namespace quiz
       virtual void beginTransaction() = 0;
       virtual void commit() = 0;
       virtual void rollback() = 0;
+      virtual ResultSet execute(const std::string &sql, const std::vector< std::string > &params) = 0;
     };
 
     class IDatabase

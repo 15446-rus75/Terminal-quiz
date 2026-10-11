@@ -1,7 +1,7 @@
 #ifndef IFAVORITE_REPOSITORY_HPP
 #define IFAVORITE_REPOSITORY_HPP
 
-#include <cstdint>
+#include <cstddef>
 #include <vector>
 
 #include "../core/question.hpp"

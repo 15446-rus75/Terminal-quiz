@@ -1,10 +1,11 @@
 #ifndef POSTGRES_FAVORITE_REPOSITORY_HPP
 #define POSTGRES_FAVORITE_REPOSITORY_HPP
 
-#include <cstdint>
+#include <cstddef>
 #include <memory>
 #include <vector>
 
+#include "../core/question.hpp"
 #include "idatabase.hpp"
 #include "ifavorite_repository.hpp"
 

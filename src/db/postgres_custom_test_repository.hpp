@@ -1,11 +1,12 @@
 #ifndef POSTGRES_CUSTOM_TEST_REPOSITORY_HPP
 #define POSTGRES_CUSTOM_TEST_REPOSITORY_HPP
 
-#include <cstdint>
+#include <cstddef>
 #include <memory>
 #include <optional>
 #include <vector>
 
+#include "../core/custom_test.hpp"
 #include "icustom_test_repository.hpp"
 #include "idatabase.hpp"
 

@@ -1,10 +1,11 @@
 #ifndef POSTGRES_STATISTICS_REPOSITORY_HPP
 #define POSTGRES_STATISTICS_REPOSITORY_HPP
 
-#include <cstdint>
+#include <cstddef>
 #include <memory>
 #include <vector>
 
+#include "../core/statistics.hpp"
 #include "idatabase.hpp"
 #include "istatistics_repository.hpp"
 
