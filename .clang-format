@@ -38,3 +38,4 @@ IndentCaseLabels: false
 NamespaceIndentation: None
 SpaceBeforeAssignmentOperators: true
 SpaceBeforeParens: ControlStatements
+BreakTemplateDeclarations: Yes
