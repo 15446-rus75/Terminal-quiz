@@ -1,14 +1,13 @@
-#ifndef QUIZ_SERVICES_QUIZ_SERVICE_HPP
-#define QUIZ_SERVICES_QUIZ_SERVICE_HPP
+#ifndef QUIZ_SERVICE_HPP
+#define QUIZ_SERVICE_HPP
 
-#include <cstdint>
+#include <cstddef>
 #include <memory>
 #include <string>
 #include <vector>
 
-#include "../core/attempt.hpp"
 #include "../core/question.hpp"
-#include "../db/i_attempt_repository.hpp"
+#include "../db/iattempt_repository.hpp"
 
 namespace quiz
 {
