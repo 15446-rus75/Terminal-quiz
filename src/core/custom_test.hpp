@@ -2,7 +2,7 @@
 #define CUSTOM_TEST_HPP
 
 #include <chrono>
-#include <cstdint>
+#include <cstddef>
 #include <string>
 #include <vector>
 

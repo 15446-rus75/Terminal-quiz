@@ -2,10 +2,9 @@
 #define ATTEMPT_HPP
 
 #include <chrono>
-#include <cstdint>
+#include <cstddef>
+#include <string>
 #include <vector>
-
-#include "question.hpp"
 
 namespace quiz
 {

@@ -1,7 +1,6 @@
 #ifndef ENUMS_HPP
 #define ENUMS_HPP
 
-#include <cstdint>
 #include <string>
 
 namespace quiz
@@ -16,7 +15,7 @@ namespace quiz
       HARD = 3
     };
 
-    enum class QuestionTypes
+    enum class QuestionType
     {
       ANY = 0,
       MULTIPLE = 1,
@@ -55,6 +54,10 @@ namespace quiz
     std::string toString(Difficulty difficulty);
     std::string toString(QuestionType type);
     std::string toString(Category category);
+
+    Difficulty parseDifficulty(const std::string &text);
+    QuestionType parseQuestionType(const std::string &text);
+    Category parseCategory(const std::string &text);
   }
 }
 
