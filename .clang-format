@@ -38,9 +38,9 @@ IndentCaseLabels: false
 NamespaceIndentation: All
 SpaceBeforeAssignmentOperators: true
 SpaceBeforeParens: ControlStatements
+BreakTemplateDeclarations: Yes
 FixNamespaceComments: false
 SpaceBeforeInheritanceColon: false
-
 IncludeBlocks: Regroup
 IncludeCategories:
   - Regex: '<[a-z_]+>'
