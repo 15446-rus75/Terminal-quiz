@@ -111,21 +111,21 @@ std::string quiz::core::toString(Category category)
 
 quiz::core::Difficulty quiz::core::parseDifficulty(const std::string &text)
 {
-  std::string lower_text = toLower(text);
+  const std::string LOWER_TEXT = toLower(text);
 
-  if (lower_text == "any")
+  if (LOWER_TEXT == "any")
   {
     return Difficulty::ANY;
   }
-  if (lower_text == "easy")
+  if (LOWER_TEXT == "easy")
   {
     return Difficulty::EASY;
   }
-  if (lower_text == "medium")
+  if (LOWER_TEXT == "medium")
   {
     return Difficulty::MEDIUM;
   }
-  if (lower_text == "hard")
+  if (LOWER_TEXT == "hard")
   {
     return Difficulty::HARD;
   }
@@ -135,17 +135,17 @@ quiz::core::Difficulty quiz::core::parseDifficulty(const std::string &text)
 
 quiz::core::QuestionType quiz::core::parseQuestionType(const std::string &text)
 {
-  std::string lower_text = toLower(text);
+  const std::string LOWER_TEXT = toLower(text);
 
-  if (lower_text == "any")
+  if (LOWER_TEXT == "any")
   {
     return QuestionType::ANY;
   }
-  if (lower_text == "multiple")
+  if (LOWER_TEXT == "multiple")
   {
     return QuestionType::MULTIPLE;
   }
-  if (lower_text == "boolean")
+  if (LOWER_TEXT == "boolean")
   {
     return QuestionType::BOOLEAN;
   }
@@ -155,105 +155,105 @@ quiz::core::QuestionType quiz::core::parseQuestionType(const std::string &text)
 
 quiz::core::Category quiz::core::parseCategory(const std::string &text)
 {
-  std::string lower_text = toLower(text);
+  const std::string LOWER_TEXT = toLower(text);
 
-  if (lower_text == "any" || lower_text == "0")
+  if (LOWER_TEXT == "any" || LOWER_TEXT == "0")
   {
     return Category::ANY;
   }
-  if (lower_text == "general knowledge" || lower_text == "9")
+  if (LOWER_TEXT == "general knowledge" || LOWER_TEXT == "9")
   {
     return Category::GENERAL_KNOWLEDGE;
   }
-  if (lower_text == "entertainment: books" || lower_text == "10")
+  if (LOWER_TEXT == "entertainment: books" || LOWER_TEXT == "10")
   {
     return Category::ENTERTAINMENT_BOOKS;
   }
-  if (lower_text == "entertainment: film" || lower_text == "11")
+  if (LOWER_TEXT == "entertainment: film" || LOWER_TEXT == "11")
   {
     return Category::ENTERTAINMENT_FILM;
   }
-  if (lower_text == "entertainment: music" || lower_text == "12")
+  if (LOWER_TEXT == "entertainment: music" || LOWER_TEXT == "12")
   {
     return Category::ENTERTAINMENT_MUSIC;
   }
-  if (lower_text == "entertainment: musicals & theatres" || lower_text == "13")
+  if (LOWER_TEXT == "entertainment: musicals & theatres" || LOWER_TEXT == "13")
   {
     return Category::ENTERTAINMENT_MUSICALS_THEATRES;
   }
-  if (lower_text == "entertainment: television" || lower_text == "14")
+  if (LOWER_TEXT == "entertainment: television" || LOWER_TEXT == "14")
   {
     return Category::ENTERTAINMENT_TELEVISION;
   }
-  if (lower_text == "entertainment: video games" || lower_text == "15")
+  if (LOWER_TEXT == "entertainment: video games" || LOWER_TEXT == "15")
   {
     return Category::ENTERTAINMENT_VIDEO_GAMES;
   }
-  if (lower_text == "entertainment: board games" || lower_text == "16")
+  if (LOWER_TEXT == "entertainment: board games" || LOWER_TEXT == "16")
   {
     return Category::ENTERTAINMENT_BOARD_GAMES;
   }
-  if (lower_text == "science & nature" || lower_text == "17")
+  if (LOWER_TEXT == "science & nature" || LOWER_TEXT == "17")
   {
     return Category::SCIENCE_NATURE;
   }
-  if (lower_text == "science: computers" || lower_text == "18")
+  if (LOWER_TEXT == "science: computers" || LOWER_TEXT == "18")
   {
     return Category::SCIENCE_COMPUTERS;
   }
-  if (lower_text == "science: mathematics" || lower_text == "19")
+  if (LOWER_TEXT == "science: mathematics" || LOWER_TEXT == "19")
   {
     return Category::SCIENCE_MATHEMATICS;
   }
-  if (lower_text == "mythology" || lower_text == "20")
+  if (LOWER_TEXT == "mythology" || LOWER_TEXT == "20")
   {
     return Category::MYTHOLOGY;
   }
-  if (lower_text == "sports" || lower_text == "21")
+  if (LOWER_TEXT == "sports" || LOWER_TEXT == "21")
   {
     return Category::SPORTS;
   }
-  if (lower_text == "geography" || lower_text == "22")
+  if (LOWER_TEXT == "geography" || LOWER_TEXT == "22")
   {
     return Category::GEOGRAPHY;
   }
-  if (lower_text == "history" || lower_text == "23")
+  if (LOWER_TEXT == "history" || LOWER_TEXT == "23")
   {
     return Category::HISTORY;
   }
-  if (lower_text == "politics" || lower_text == "24")
+  if (LOWER_TEXT == "politics" || LOWER_TEXT == "24")
   {
     return Category::POLITICS;
   }
-  if (lower_text == "art" || lower_text == "25")
+  if (LOWER_TEXT == "art" || LOWER_TEXT == "25")
   {
     return Category::ART;
   }
-  if (lower_text == "celebrities" || lower_text == "26")
+  if (LOWER_TEXT == "celebrities" || LOWER_TEXT == "26")
   {
     return Category::CELEBRITIES;
   }
-  if (lower_text == "animals" || lower_text == "27")
+  if (LOWER_TEXT == "animals" || LOWER_TEXT == "27")
   {
     return Category::ANIMALS;
   }
-  if (lower_text == "vehicles" || lower_text == "28")
+  if (LOWER_TEXT == "vehicles" || LOWER_TEXT == "28")
   {
     return Category::VEHICLES;
   }
-  if (lower_text == "entertainment: comics" || lower_text == "29")
+  if (LOWER_TEXT == "entertainment: comics" || LOWER_TEXT == "29")
   {
     return Category::ENTERTAINMENT_COMICS;
   }
-  if (lower_text == "science: gadgets" || lower_text == "30")
+  if (LOWER_TEXT == "science: gadgets" || LOWER_TEXT == "30")
   {
     return Category::SCIENCE_GADGETS;
   }
-  if (lower_text == "entertainment: japanese anime & manga" || lower_text == "31")
+  if (LOWER_TEXT == "entertainment: japanese anime & manga" || LOWER_TEXT == "31")
   {
     return Category::ENTERTAINMENT_ANIME;
   }
-  if (lower_text == "entertainment: cartoon & animations" || lower_text == "32")
+  if (LOWER_TEXT == "entertainment: cartoon & animations" || LOWER_TEXT == "32")
   {
     return Category::ENTERTAINMENT_CARTOON_ANIMATIONS;
   }
