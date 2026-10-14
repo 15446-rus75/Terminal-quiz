@@ -1,6 +1,8 @@
 #include "enums.hpp"
+
 #include <algorithm>
 #include <cctype>
+#include <string>
 
 namespace
 {
@@ -23,14 +25,14 @@ std::string quiz::core::toString(Difficulty difficulty)
 {
   switch (difficulty)
   {
-    case Difficulty::ANY:
-      return "any";
-    case Difficulty::EASY:
-      return "easy";
-    case Difficulty::MEDIUM:
-      return "medium";
-    case Difficulty::HARD:
-      return "hard";
+  case Difficulty::ANY:
+    return "any";
+  case Difficulty::EASY:
+    return "easy";
+  case Difficulty::MEDIUM:
+    return "medium";
+  case Difficulty::HARD:
+    return "hard";
   }
   return "";
 }
@@ -39,12 +41,12 @@ std::string quiz::core::toString(QuestionType type)
 {
   switch (type)
   {
-    case QuestionType::ANY:
-      return "any";
-    case QuestionType::MULTIPLE:
-      return "multiple";
-    case QuestionType::BOOLEAN:
-      return "boolean";
+  case QuestionType::ANY:
+    return "any";
+  case QuestionType::MULTIPLE:
+    return "multiple";
+  case QuestionType::BOOLEAN:
+    return "boolean";
   }
   return "";
 }
@@ -53,63 +55,63 @@ std::string quiz::core::toString(Category category)
 {
   switch (category)
   {
-    case Category::ANY:
-      return "any";
-    case Category::GENERAL_KNOWLEDGE:
-      return "General knowledge";
-    case Category::ENTERTAINMENT_BOOKS:
-      return "Entertainment: books";
-    case Category::ENTERTAINMENT_FILM:
-      return "Entertainment: film";
-    case Category::ENTERTAINMENT_MUSIC:
-      return "Entertainment: music";
-    case Category::ENTERTAINMENT_MUSICALS_THEATRES:
-      return "Entertainment: musicals & theatres";
-    case Category::ENTERTAINMENT_TELEVISION:
-      return "Entertainment: television";
-    case Category::ENTERTAINMENT_VIDEO_GAMES:
-      return "Entertainment: video games";
-    case Category::ENTERTAINMENT_BOARD_GAMES:
-      return "Entertainment: board games";
-    case Category::SCIENCE_NATURE:
-      return "Science & nature";
-    case Category::SCIENCE_COMPUTERS:
-      return "Science: computers";
-    case Category::SCIENCE_MATHEMATICS:
-      return "Science: mathematics";
-    case Category::MYTHOLOGY:
-      return "Mythology";
-    case Category::SPORTS:
-      return "Sports";
-    case Category::GEOGRAPHY:
-      return "Geography";
-    case Category::HISTORY:
-      return "History";
-    case Category::POLITICS:
-      return "Politics";
-    case Category::ART:
-      return "Art";
-    case Category::CELEBRITIES:
-      return "Celebrities";
-    case Category::ANIMALS:
-      return "Animals";
-    case Category::VEHICLES:
-      return "Vehicles";
-    case Category::ENTERTAINMENT_COMICS:
-      return "Entertainment: comics";
-    case Category::SCIENCE_GADGETS:
-      return "Science: gadgets";
-    case Category::ENTERTAINMENT_ANIME:
-      return "Entertainment: japanese anime & manga";
-    case Category::ENTERTAINMENT_CARTOON_ANIMATIONS:
-      return "Entertainment: cartoon & animations";
+  case Category::ANY:
+    return "any";
+  case Category::GENERAL_KNOWLEDGE:
+    return "General knowledge";
+  case Category::ENTERTAINMENT_BOOKS:
+    return "Entertainment: books";
+  case Category::ENTERTAINMENT_FILM:
+    return "Entertainment: film";
+  case Category::ENTERTAINMENT_MUSIC:
+    return "Entertainment: music";
+  case Category::ENTERTAINMENT_MUSICALS_THEATRES:
+    return "Entertainment: musicals & theatres";
+  case Category::ENTERTAINMENT_TELEVISION:
+    return "Entertainment: television";
+  case Category::ENTERTAINMENT_VIDEO_GAMES:
+    return "Entertainment: video games";
+  case Category::ENTERTAINMENT_BOARD_GAMES:
+    return "Entertainment: board games";
+  case Category::SCIENCE_NATURE:
+    return "Science & nature";
+  case Category::SCIENCE_COMPUTERS:
+    return "Science: computers";
+  case Category::SCIENCE_MATHEMATICS:
+    return "Science: mathematics";
+  case Category::MYTHOLOGY:
+    return "Mythology";
+  case Category::SPORTS:
+    return "Sports";
+  case Category::GEOGRAPHY:
+    return "Geography";
+  case Category::HISTORY:
+    return "History";
+  case Category::POLITICS:
+    return "Politics";
+  case Category::ART:
+    return "Art";
+  case Category::CELEBRITIES:
+    return "Celebrities";
+  case Category::ANIMALS:
+    return "Animals";
+  case Category::VEHICLES:
+    return "Vehicles";
+  case Category::ENTERTAINMENT_COMICS:
+    return "Entertainment: comics";
+  case Category::SCIENCE_GADGETS:
+    return "Science: gadgets";
+  case Category::ENTERTAINMENT_ANIME:
+    return "Entertainment: japanese anime & manga";
+  case Category::ENTERTAINMENT_CARTOON_ANIMATIONS:
+    return "Entertainment: cartoon & animations";
   }
   return "";
 }
 
 quiz::core::Difficulty quiz::core::parseDifficulty(const std::string &text)
 {
-  const std::string lower_text = toLower(text);
+  std::string lower_text = toLower(text);
 
   if (lower_text == "any")
   {
@@ -133,7 +135,7 @@ quiz::core::Difficulty quiz::core::parseDifficulty(const std::string &text)
 
 quiz::core::QuestionType quiz::core::parseQuestionType(const std::string &text)
 {
-  const std::string lower_text = toLower(text);
+  std::string lower_text = toLower(text);
 
   if (lower_text == "any")
   {
@@ -153,7 +155,7 @@ quiz::core::QuestionType quiz::core::parseQuestionType(const std::string &text)
 
 quiz::core::Category quiz::core::parseCategory(const std::string &text)
 {
-  const std::string lower_text = toLower(text);
+  std::string lower_text = toLower(text);
 
   if (lower_text == "any" || lower_text == "0")
   {
@@ -257,4 +259,3 @@ quiz::core::Category quiz::core::parseCategory(const std::string &text)
   }
   return Category::ANY;
 }
-
