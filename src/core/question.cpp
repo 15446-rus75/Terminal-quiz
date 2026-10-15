@@ -1,4 +1,5 @@
 #include "question.hpp"
+
 #include <algorithm>
 #include <cctype>
 #include <string>
@@ -33,4 +34,3 @@ bool quiz::core::Question::isCorrectAnswer(const std::string &user_answer) const
 {
   return toLower(user_answer) == toLower(correct_answer);
 }
-
