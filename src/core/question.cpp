@@ -1,7 +1,25 @@
 #include "question.hpp"
-
+#include <algorithm>
+#include <cctype>
 #include <string>
 #include <vector>
+
+namespace
+{
+  struct Lowerer
+  {
+    char operator()(unsigned char ch) const
+    {
+      return static_cast< char >(std::tolower(ch));
+    }
+  };
+
+  std::string toLower(std::string text)
+  {
+    std::transform(text.begin(), text.end(), text.begin(), Lowerer{});
+    return text;
+  }
+}
 
 std::vector< std::string > quiz::core::Question::allAnswers() const
 {
@@ -13,5 +31,6 @@ std::vector< std::string > quiz::core::Question::allAnswers() const
 
 bool quiz::core::Question::isCorrectAnswer(const std::string &user_answer) const
 {
-  return user_answer == correct_answer;
+  return toLower(user_answer) == toLower(correct_answer);
 }
+
