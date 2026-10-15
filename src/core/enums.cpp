@@ -6,6 +6,7 @@
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <utility>
 
 namespace
 {
@@ -56,25 +57,37 @@ namespace
      {quiz::core::Category::ENTERTAINMENT_ANIME, "Entertainment: Japanese Anime & Manga"},
      {quiz::core::Category::ENTERTAINMENT_CARTOON_ANIMATIONS, "Entertainment: Cartoon & Animations"}}};
 
-  struct HasCategory
+  class HasCategory
   {
-    quiz::core::Category category;
+  public:
+    explicit HasCategory(quiz::core::Category category): category_(category)
+    {
+    }
 
     bool operator()(const CategoryName &entry) const
     {
-      return entry.category == category;
+      return entry.category == category_;
     }
+
+  private:
+    quiz::core::Category category_;
   };
 
-  struct HasText
+  class HasText
   {
-    std::string lower_text;
+  public:
+    explicit HasText(std::string lower_text): lower_text_(std::move(lower_text))
+    {
+    }
 
     bool operator()(const CategoryName &entry) const
     {
-      return lower_text == toLower(std::string(entry.name)) ||
-             lower_text == std::to_string(static_cast< int >(entry.category));
+      return lower_text_ == toLower(std::string(entry.name)) ||
+             lower_text_ == std::to_string(static_cast< int >(entry.category));
     }
+
+  private:
+    std::string lower_text_;
   };
 }
 
@@ -110,7 +123,7 @@ std::string quiz::core::toString(QuestionType type)
 
 std::string quiz::core::toString(Category category)
 {
-  const auto *it = std::find_if(CATEGORY_NAMES.begin(), CATEGORY_NAMES.end(), HasCategory{category});
+  const auto *it = std::find_if(CATEGORY_NAMES.begin(), CATEGORY_NAMES.end(), HasCategory(category));
   if (it == CATEGORY_NAMES.end())
   {
     throw std::invalid_argument("Unknown category");
@@ -170,7 +183,7 @@ quiz::core::Category quiz::core::parseCategory(const std::string &text)
   {
     return Category::ANY;
   }
-  const auto *it = std::find_if(CATEGORY_NAMES.begin(), CATEGORY_NAMES.end(), HasText{LOWER_TEXT});
+  const auto *it = std::find_if(CATEGORY_NAMES.begin(), CATEGORY_NAMES.end(), HasText(LOWER_TEXT));
   if (it == CATEGORY_NAMES.end())
   {
     throw std::invalid_argument("Unknown category");
