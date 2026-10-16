@@ -17,6 +17,10 @@ namespace quiz
     {
     public:
       explicit LruCache(size_t capacity);
+      LruCache(const LruCache &other);
+      LruCache &operator=(const LruCache &other);
+      LruCache(LruCache &&other);
+      LruCache &operator=(LruCache &&other);
       void put(const Key &key, const Value &value);
       std::optional< Value > get(const Key &key);
       bool contains(const Key &key) const;
@@ -28,6 +32,7 @@ namespace quiz
 
       void moveToFront(const Key &key);
       void evictLeastRecent();
+      void swap(LruCache &other);
 
       size_t capacity_;
       std::list< std::pair< Key, Value > > items_;
@@ -35,5 +40,7 @@ namespace quiz
     };
   }
 }
+
+#include "lru_cache.tpp"
 
 #endif
