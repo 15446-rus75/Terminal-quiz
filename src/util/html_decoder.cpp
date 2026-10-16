@@ -4,7 +4,6 @@
 #include <array>
 #include <charconv>
 #include <cstddef>
-#include <cstdint>
 #include <string>
 #include <string_view>
 #include <system_error>
@@ -14,10 +13,9 @@ namespace
   struct NamedEntity
   {
     std::string_view name;
-    std::uint32_t code_point;
+    unsigned long long int code_point;
   };
 
-  // HTML 4 named entities plus apos; numeric references cover other Unicode characters.
   constexpr std::array< NamedEntity, 253 > NAMED_ENTITIES = {{
     {"AElig", 0x00C6},    {"Aacute", 0x00C1},  {"Acirc", 0x00C2},   {"Agrave", 0x00C0},  {"Alpha", 0x0391},
     {"Aring", 0x00C5},    {"Atilde", 0x00C3},  {"Auml", 0x00C4},    {"Beta", 0x0392},    {"Ccedil", 0x00C7},
@@ -72,24 +70,32 @@ namespace
     {"zeta", 0x03B6},     {"zwj", 0x200D},     {"zwnj", 0x200C},
   }};
 
-  constexpr std::uint32_t ASCII_MAX = 0x7F;
-  constexpr std::uint32_t TWO_BYTE_MAX = 0x7FF;
-  constexpr std::uint32_t THREE_BYTE_MAX = 0xFFFF;
-  constexpr std::uint32_t UNICODE_MAX = 0x10FFFF;
-  constexpr std::uint32_t SURROGATE_FIRST = 0xD800;
-  constexpr std::uint32_t SURROGATE_LAST = 0xDFFF;
-  constexpr std::uint32_t CONTINUATION_PREFIX = 0x80;
-  constexpr std::uint32_t TWO_BYTE_PREFIX = 0xC0;
-  constexpr std::uint32_t THREE_BYTE_PREFIX = 0xE0;
-  constexpr std::uint32_t FOUR_BYTE_PREFIX = 0xF0;
-  constexpr std::uint32_t CONTINUATION_MASK = 0x3F;
+  struct EntityNameLess
+  {
+    bool operator()(const NamedEntity &entry, const std::string &name) const
+    {
+      return entry.name < name;
+    }
+  };
+
+  constexpr unsigned long long int ASCII_MAX = 0x7F;
+  constexpr unsigned long long int TWO_BYTE_MAX = 0x7FF;
+  constexpr unsigned long long int THREE_BYTE_MAX = 0xFFFF;
+  constexpr unsigned long long int UNICODE_MAX = 0x10FFFF;
+  constexpr unsigned long long int SURROGATE_FIRST = 0xD800;
+  constexpr unsigned long long int SURROGATE_LAST = 0xDFFF;
+  constexpr unsigned long long int CONTINUATION_PREFIX = 0x80;
+  constexpr unsigned long long int TWO_BYTE_PREFIX = 0xC0;
+  constexpr unsigned long long int THREE_BYTE_PREFIX = 0xE0;
+  constexpr unsigned long long int FOUR_BYTE_PREFIX = 0xF0;
+  constexpr unsigned long long int CONTINUATION_MASK = 0x3F;
   constexpr unsigned int CONTINUATION_BITS = 6;
   constexpr unsigned int THREE_BYTE_CONTINUATIONS = 2;
   constexpr unsigned int FOUR_BYTE_CONTINUATIONS = 3;
   constexpr int DECIMAL_BASE = 10;
   constexpr int HEXADECIMAL_BASE = 16;
 
-  std::string toUtf8(std::uint32_t code_point)
+  std::string toUtf8(unsigned long long int code_point)
   {
     if (code_point == 0 || code_point > UNICODE_MAX || (code_point >= SURROGATE_FIRST && code_point <= SURROGATE_LAST))
     {
@@ -104,7 +110,7 @@ namespace
     }
 
     unsigned int remaining = 1;
-    std::uint32_t prefix = TWO_BYTE_PREFIX;
+    unsigned long long int prefix = TWO_BYTE_PREFIX;
     if (code_point > THREE_BYTE_MAX)
     {
       remaining = FOUR_BYTE_CONTINUATIONS;
@@ -178,11 +184,7 @@ std::string quiz::util::HtmlDecoder::decodeEntity(const std::string &entity)
     return decodeNumericEntity(entity);
   }
 
-  const auto *found = std::lower_bound(NAMED_ENTITIES.begin(), NAMED_ENTITIES.end(), entity,
-                                       [](const NamedEntity &entry, const std::string &name)
-                                       {
-                                         return entry.name < name;
-                                       });
+  const auto *found = std::lower_bound(NAMED_ENTITIES.begin(), NAMED_ENTITIES.end(), entity, EntityNameLess{});
   if (found == NAMED_ENTITIES.end() || found->name != entity)
   {
     return {};
@@ -204,7 +206,7 @@ std::string quiz::util::HtmlDecoder::decodeNumericEntity(const std::string &enti
     return {};
   }
 
-  std::uint32_t code_point = 0;
+  unsigned long long int code_point = 0;
   const char *first = entity.data() + start;
   const char *last = entity.data() + entity.size();
   const auto PARSED = std::from_chars(first, last, code_point, base);
