@@ -30,30 +30,20 @@ namespace quiz
 
     public:
       explicit LruCache(size_t capacity);
-
       LruCache(const LruCache &other);
-
       LruCache &operator=(const LruCache &other);
-
       LruCache(LruCache &&other) noexcept(NOTHROW_MOVE);
-
       LruCache &operator=(LruCache &&other) noexcept(NOTHROW_MOVE && NOTHROW_SWAP);
 
       void put(const Key &key, const Value &value);
-
       std::optional< Value > get(const Key &key);
-
       bool contains(const Key &key) const;
-
       size_t size() const;
-
       void clear() noexcept;
 
     private:
       void moveToFront(ListIterator position) noexcept;
-
       void evictLeastRecent() noexcept(NOTHROW_ERASE);
-
       void swap(LruCache &other) noexcept(NOTHROW_SWAP);
 
       size_t capacity_;

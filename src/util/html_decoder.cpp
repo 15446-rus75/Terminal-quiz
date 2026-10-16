@@ -184,7 +184,7 @@ std::string quiz::util::HtmlDecoder::decodeEntity(const std::string &entity)
     return decodeNumericEntity(entity);
   }
 
-  const auto *found = std::lower_bound(NAMED_ENTITIES.begin(), NAMED_ENTITIES.end(), entity, EntityNameLess{});
+  const NamedEntity *found = std::lower_bound(NAMED_ENTITIES.begin(), NAMED_ENTITIES.end(), entity, EntityNameLess{});
   if (found == NAMED_ENTITIES.end() || found->name != entity)
   {
     return {};
