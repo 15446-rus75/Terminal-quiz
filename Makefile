@@ -9,28 +9,32 @@ TEST_DIR  := $(SRC_DIR)/test
 BUILD_DIR := build
 BIN       := $(BUILD_DIR)/terminal_quiz
 
-SOURCES := $(shell find $(SRC_DIR) -path $(TEST_DIR) -prune -o -name '*.cpp' -print 2>/dev/null)
-OBJECTS := $(patsubst $(SRC_DIR)/%.cpp,$(BUILD_DIR)/%.o,$(SOURCES))
-HEADERS := $(shell find $(SRC_DIR) -path $(TEST_DIR) -prune -o -name '*.hpp' -print 2>/dev/null)
+ALL_FILES    := $(shell find $(SRC_DIR) -type f 2>/dev/null)
+FORMAT_FILES := $(filter %.cpp %.hpp %.h,$(ALL_FILES))
+APP_FILES    := $(filter-out $(TEST_DIR)/%,$(ALL_FILES))
+SOURCES      := $(filter %.cpp,$(APP_FILES))
+HEADERS      := $(filter %.hpp,$(APP_FILES))
+OBJECTS      := $(SOURCES:$(SRC_DIR)/%.cpp=$(BUILD_DIR)/%.o)
 
 BOOST_FLAGS    := -DBOOST_TEST_DYN_LINK
 BOOST_LIBS     := -lboost_unit_test_framework
 TEST_CXXFLAGS  := $(CXXFLAGS_BASE) -O0 -g
 TEST_BUILD_DIR := $(CURDIR)/$(BUILD_DIR)/test
-TEST_MODULES   := $(patsubst %/Makefile,%,$(wildcard $(TEST_DIR)/*/Makefile))
+TEST_MODULES   := $(patsubst $(TEST_DIR)/%/Makefile,%,$(wildcard $(TEST_DIR)/*/Makefile))
 
 export CXX TEST_CXXFLAGS LIBS BOOST_FLAGS BOOST_LIBS TEST_BUILD_DIR
 
+.DEFAULT_GOAL := build
 .PHONY: build run clean test check-format check-headers check-tidy check-cppcheck check-all fix-format
 
 build: $(BIN)
 
 $(BIN): $(OBJECTS)
-	@mkdir -p $(dir $@)
-	$(CXX) $(CXXFLAGS) $(OBJECTS) -o $@ $(LIBS)
+	@mkdir -p $(@D)
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LIBS)
 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
-	@mkdir -p $(dir $@)
+	@mkdir -p $(@D)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
 
 -include $(OBJECTS:.o=.d)
@@ -42,40 +46,33 @@ clean:
 	rm -rf $(BUILD_DIR)
 
 test:
-	@if [ -z "$(TEST_MODULES)" ]; then \
-	  echo "Тестовых модулей не найдено (ожидаются $(TEST_DIR)/<модуль>/Makefile)"; \
-	else \
-	  failed=""; \
-	  for d in $(TEST_MODULES); do \
-	    echo "==> $$d"; \
-	    $(MAKE) --no-print-directory -C $$d test || failed="$$failed $$(basename $$d)"; \
-	  done; \
-	  if [ -n "$$failed" ]; then echo "Тесты упали в модулях:$$failed"; exit 1; fi; \
-	  echo "Все тесты пройдены"; \
-	fi
+ifeq ($(TEST_MODULES),)
+	@echo "Тестовых модулей не найдено (ожидаются $(TEST_DIR)/<модуль>/Makefile)"
+else
+	@failed=""; \
+	for module in $(TEST_MODULES); do \
+	  echo "==> $(TEST_DIR)/$$module"; \
+	  $(MAKE) --no-print-directory -C $(TEST_DIR)/$$module test || failed="$$failed $$module"; \
+	done; \
+	if [ -n "$$failed" ]; then echo "Тесты упали в модулях:$$failed"; exit 1; fi; \
+	echo "Все тесты пройдены"
+endif
 
 test-%:
 	@$(MAKE) --no-print-directory -C $(TEST_DIR)/$* test
 
 check-format:
-	@find $(SRC_DIR) \( -name '*.cpp' -o -name '*.hpp' -o -name '*.h' \) -print0 2>/dev/null \
-	  | xargs -0 -r clang-format --dry-run --Werror
+	@$(if $(FORMAT_FILES),clang-format --dry-run --Werror $(FORMAT_FILES))
 
 fix-format:
-	@find $(SRC_DIR) \( -name '*.cpp' -o -name '*.hpp' -o -name '*.h' \) -print0 2>/dev/null \
-	  | xargs -0 -r clang-format -i
+	@$(if $(FORMAT_FILES),clang-format -i $(FORMAT_FILES))
 	@echo "Форматирование применено"
 
 check-headers:
-	@failed=0; \
-	for h in $(HEADERS); do \
-	  $(CXX) $(CXXFLAGS_BASE) $(INCLUDES) -fsyntax-only -x c++ $$h || failed=1; \
-	done; \
-	exit $$failed
+	@$(if $(HEADERS),$(CXX) $(CXXFLAGS_BASE) $(INCLUDES) -fsyntax-only -x c++ $(HEADERS))
 
 check-tidy:
-	@find $(SRC_DIR) -path $(TEST_DIR) -prune -o -name '*.cpp' -print0 2>/dev/null \
-	  | xargs -0 -r -I {} clang-tidy --quiet {} -- -std=c++20 -I$(SRC_DIR)
+	@$(if $(SOURCES),clang-tidy --quiet $(SOURCES) -- -std=c++20 $(INCLUDES))
 
 check-cppcheck:
 	@cppcheck --enable=warning,style,performance,portability --inconclusive --force \
