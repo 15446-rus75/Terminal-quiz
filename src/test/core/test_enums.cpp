@@ -1,9 +1,10 @@
 #define BOOST_TEST_MODULE core_tests
-#include <boost/test/unit_test.hpp>
 #include <array>
 #include <stdexcept>
 #include <string>
+
 #include "core/enums.hpp"
+#include <boost/test/unit_test.hpp>
 
 namespace core = quiz::core;
 
@@ -102,9 +103,9 @@ BOOST_AUTO_TEST_CASE(unknown_throws)
 
 BOOST_AUTO_TEST_CASE(round_trip)
 {
-  const std::array< core::Difficulty, 4 > VALUES = { core::Difficulty::ANY, core::Difficulty::EASY,
-      core::Difficulty::MEDIUM, core::Difficulty::HARD };
-  for (const core::Difficulty value: VALUES)
+  const std::array< core::Difficulty, 4 > VALUES = {core::Difficulty::ANY, core::Difficulty::EASY,
+                                                    core::Difficulty::MEDIUM, core::Difficulty::HARD};
+  for (const core::Difficulty value : VALUES)
   {
     BOOST_TEST(core::parseDifficulty(core::toString(value)) == value);
   }
@@ -135,9 +136,9 @@ BOOST_AUTO_TEST_CASE(unknown_throws)
 
 BOOST_AUTO_TEST_CASE(round_trip)
 {
-  const std::array< core::QuestionType, 3 > VALUES = { core::QuestionType::ANY, core::QuestionType::MULTIPLE,
-      core::QuestionType::BOOLEAN };
-  for (const core::QuestionType value: VALUES)
+  const std::array< core::QuestionType, 3 > VALUES = {core::QuestionType::ANY, core::QuestionType::MULTIPLE,
+                                                      core::QuestionType::BOOLEAN};
+  for (const core::QuestionType value : VALUES)
   {
     BOOST_TEST(core::parseQuestionType(core::toString(value)) == value);
   }
@@ -180,32 +181,32 @@ BOOST_AUTO_TEST_CASE(unknown_throws)
 
 BOOST_AUTO_TEST_CASE(round_trip_for_every_category)
 {
-  const std::array< core::Category, 25 > VALUES = { core::Category::ANY,
-      core::Category::GENERAL_KNOWLEDGE,
-      core::Category::ENTERTAINMENT_BOOKS,
-      core::Category::ENTERTAINMENT_FILM,
-      core::Category::ENTERTAINMENT_MUSIC,
-      core::Category::ENTERTAINMENT_MUSICALS_THEATRES,
-      core::Category::ENTERTAINMENT_TELEVISION,
-      core::Category::ENTERTAINMENT_VIDEO_GAMES,
-      core::Category::ENTERTAINMENT_BOARD_GAMES,
-      core::Category::SCIENCE_NATURE,
-      core::Category::SCIENCE_COMPUTERS,
-      core::Category::SCIENCE_MATHEMATICS,
-      core::Category::MYTHOLOGY,
-      core::Category::SPORTS,
-      core::Category::GEOGRAPHY,
-      core::Category::HISTORY,
-      core::Category::POLITICS,
-      core::Category::ART,
-      core::Category::CELEBRITIES,
-      core::Category::ANIMALS,
-      core::Category::VEHICLES,
-      core::Category::ENTERTAINMENT_COMICS,
-      core::Category::SCIENCE_GADGETS,
-      core::Category::ENTERTAINMENT_ANIME,
-      core::Category::ENTERTAINMENT_CARTOON_ANIMATIONS };
-  for (const core::Category value: VALUES)
+  const std::array< core::Category, 25 > VALUES = {core::Category::ANY,
+                                                   core::Category::GENERAL_KNOWLEDGE,
+                                                   core::Category::ENTERTAINMENT_BOOKS,
+                                                   core::Category::ENTERTAINMENT_FILM,
+                                                   core::Category::ENTERTAINMENT_MUSIC,
+                                                   core::Category::ENTERTAINMENT_MUSICALS_THEATRES,
+                                                   core::Category::ENTERTAINMENT_TELEVISION,
+                                                   core::Category::ENTERTAINMENT_VIDEO_GAMES,
+                                                   core::Category::ENTERTAINMENT_BOARD_GAMES,
+                                                   core::Category::SCIENCE_NATURE,
+                                                   core::Category::SCIENCE_COMPUTERS,
+                                                   core::Category::SCIENCE_MATHEMATICS,
+                                                   core::Category::MYTHOLOGY,
+                                                   core::Category::SPORTS,
+                                                   core::Category::GEOGRAPHY,
+                                                   core::Category::HISTORY,
+                                                   core::Category::POLITICS,
+                                                   core::Category::ART,
+                                                   core::Category::CELEBRITIES,
+                                                   core::Category::ANIMALS,
+                                                   core::Category::VEHICLES,
+                                                   core::Category::ENTERTAINMENT_COMICS,
+                                                   core::Category::SCIENCE_GADGETS,
+                                                   core::Category::ENTERTAINMENT_ANIME,
+                                                   core::Category::ENTERTAINMENT_CARTOON_ANIMATIONS};
+  for (const core::Category value : VALUES)
   {
     BOOST_TEST(core::parseCategory(core::toString(value)) == value);
     BOOST_TEST(core::parseCategory(std::to_string(static_cast< int >(value))) == value);

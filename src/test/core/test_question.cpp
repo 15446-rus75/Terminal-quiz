@@ -1,5 +1,6 @@
 #include <string>
 #include <vector>
+
 #include "core/question.hpp"
 #include <boost/test/unit_test.hpp>
 
@@ -25,16 +26,16 @@ BOOST_AUTO_TEST_SUITE(question_all_answers)
 
 BOOST_AUTO_TEST_CASE(correct_answer_goes_first)
 {
-  const core::Question QUESTION = makeQuestion("Paris", { "London", "Berlin", "Madrid" });
-  const std::vector< std::string > EXPECTED = { "Paris", "London", "Berlin", "Madrid" };
+  const core::Question QUESTION = makeQuestion("Paris", {"London", "Berlin", "Madrid"});
+  const std::vector< std::string > EXPECTED = {"Paris", "London", "Berlin", "Madrid"};
 
   BOOST_TEST(QUESTION.allAnswers() == EXPECTED, boost::test_tools::per_element());
 }
 
 BOOST_AUTO_TEST_CASE(boolean_question)
 {
-  const core::Question QUESTION = makeQuestion("True", { "False" });
-  const std::vector< std::string > EXPECTED = { "True", "False" };
+  const core::Question QUESTION = makeQuestion("True", {"False"});
+  const std::vector< std::string > EXPECTED = {"True", "False"};
 
   BOOST_TEST(QUESTION.allAnswers() == EXPECTED, boost::test_tools::per_element());
 }
@@ -63,14 +64,14 @@ BOOST_AUTO_TEST_SUITE(question_is_correct_answer)
 
 BOOST_AUTO_TEST_CASE(exact_match)
 {
-  const core::Question QUESTION = makeQuestion("Paris", { "London" });
+  const core::Question QUESTION = makeQuestion("Paris", {"London"});
 
   BOOST_TEST(QUESTION.isCorrectAnswer("Paris"));
 }
 
 BOOST_AUTO_TEST_CASE(case_insensitive)
 {
-  const core::Question QUESTION = makeQuestion("True", { "False" });
+  const core::Question QUESTION = makeQuestion("True", {"False"});
 
   BOOST_TEST(QUESTION.isCorrectAnswer("true"));
   BOOST_TEST(QUESTION.isCorrectAnswer("TRUE"));
@@ -79,7 +80,7 @@ BOOST_AUTO_TEST_CASE(case_insensitive)
 
 BOOST_AUTO_TEST_CASE(wrong_answer)
 {
-  const core::Question QUESTION = makeQuestion("True", { "False" });
+  const core::Question QUESTION = makeQuestion("True", {"False"});
 
   BOOST_TEST(!QUESTION.isCorrectAnswer("false"));
   BOOST_TEST(!QUESTION.isCorrectAnswer(""));
@@ -88,7 +89,7 @@ BOOST_AUTO_TEST_CASE(wrong_answer)
 
 BOOST_AUTO_TEST_CASE(incorrect_answer_is_not_accepted)
 {
-  const core::Question QUESTION = makeQuestion("Paris", { "London", "Berlin" });
+  const core::Question QUESTION = makeQuestion("Paris", {"London", "Berlin"});
 
   BOOST_TEST(!QUESTION.isCorrectAnswer("London"));
   BOOST_TEST(!QUESTION.isCorrectAnswer("berlin"));
@@ -96,7 +97,7 @@ BOOST_AUTO_TEST_CASE(incorrect_answer_is_not_accepted)
 
 BOOST_AUTO_TEST_CASE(whitespace_is_not_trimmed)
 {
-  const core::Question QUESTION = makeQuestion("True", { "False" });
+  const core::Question QUESTION = makeQuestion("True", {"False"});
 
   BOOST_TEST(!QUESTION.isCorrectAnswer(" true"));
   BOOST_TEST(!QUESTION.isCorrectAnswer("true "));
