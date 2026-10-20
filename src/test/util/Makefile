@@ -2,6 +2,7 @@ CXX            ?= g++
 TEST_CXXFLAGS  ?= -std=c++20 -Wall -Wextra -Wpedantic -O0 -g
 BOOST_FLAGS    ?= -DBOOST_TEST_DYN_LINK
 BOOST_LIBS     ?= -lboost_unit_test_framework
+THREAD_FLAGS   ?= -pthread
 TEST_BUILD_DIR ?= $(abspath ../../../build/test)
 TEST_ARGS      ?= --report_level=short --color_output=no
 
@@ -17,7 +18,7 @@ all: $(TARGET)
 
 $(TARGET): $(SOURCES) $(UTIL_SOURCES) $(HEADERS)
 	@mkdir -p $(dir $@)
-	$(CXX) $(CPPFLAGS) $(TEST_CXXFLAGS) $(BOOST_FLAGS) -pthread -I../.. $(SOURCES) $(UTIL_SOURCES) $(LDFLAGS) -o $@ $(BOOST_LIBS)
+	$(CXX) $(CPPFLAGS) $(TEST_CXXFLAGS) $(BOOST_FLAGS) $(THREAD_FLAGS) -I../.. $(SOURCES) $(UTIL_SOURCES) $(LDFLAGS) -o $@ $(BOOST_LIBS)
 
 test: $(TARGET)
 	$(TARGET) $(TEST_ARGS)

@@ -168,21 +168,21 @@ BOOST_AUTO_TEST_CASE(throwing_hash_during_insertion_keeps_cache_consistent)
 BOOST_AUTO_TEST_CASE(failed_index_key_copy_does_not_evict_for_nothrow_hash)
 {
   quiz::util::LruCache< CopyKey, int, CopyKeyHash > cache(2);
-  const CopyKey first(1);
-  const CopyKey second(2);
-  const CopyKey third(3);
-  cache.put(first, 10);
-  cache.put(second, 20);
+  const CopyKey FIRST(1);
+  const CopyKey SECOND(2);
+  const CopyKey THIRD(3);
+  cache.put(FIRST, 10);
+  cache.put(SECOND, 20);
   CopyKey::copies_left = 1;
-  BOOST_CHECK_THROW(cache.put(third, 30), std::runtime_error);
+  BOOST_CHECK_THROW(cache.put(THIRD, 30), std::runtime_error);
   CopyKey::copies_left = -1;
   BOOST_TEST(cache.size() == 2U);
-  BOOST_TEST(cache.contains(first));
-  BOOST_TEST(cache.contains(second));
-  BOOST_TEST(!cache.contains(third));
-  cache.put(third, 30);
-  BOOST_TEST(!cache.contains(first));
-  BOOST_TEST(cache.contains(third));
+  BOOST_TEST(cache.contains(FIRST));
+  BOOST_TEST(cache.contains(SECOND));
+  BOOST_TEST(!cache.contains(THIRD));
+  cache.put(THIRD, 30);
+  BOOST_TEST(!cache.contains(FIRST));
+  BOOST_TEST(cache.contains(THIRD));
 }
 
 BOOST_AUTO_TEST_CASE(failed_hash_copy_during_move_preserves_source_list)
@@ -203,18 +203,18 @@ BOOST_AUTO_TEST_CASE(failed_hash_copy_during_move_preserves_source_list)
 BOOST_AUTO_TEST_CASE(throwing_equality_does_not_terminate_eviction)
 {
   quiz::util::LruCache< ThrowingEqualKey, int, EqualKeyHash > cache(2);
-  const ThrowingEqualKey first{1};
-  const ThrowingEqualKey second{2};
-  const ThrowingEqualKey third{3};
-  cache.put(first, 10);
-  cache.put(second, 20);
+  const ThrowingEqualKey FIRST{1};
+  const ThrowingEqualKey SECOND{2};
+  const ThrowingEqualKey THIRD{3};
+  cache.put(FIRST, 10);
+  cache.put(SECOND, 20);
   ThrowingEqualKey::fail = true;
-  BOOST_CHECK_THROW(cache.put(third, 30), std::runtime_error);
+  BOOST_CHECK_THROW(cache.put(THIRD, 30), std::runtime_error);
   ThrowingEqualKey::fail = false;
   BOOST_TEST(cache.size() == 2U);
-  BOOST_TEST(cache.contains(first));
-  BOOST_TEST(cache.contains(second));
-  BOOST_TEST(!cache.contains(third));
+  BOOST_TEST(cache.contains(FIRST));
+  BOOST_TEST(cache.contains(SECOND));
+  BOOST_TEST(!cache.contains(THIRD));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

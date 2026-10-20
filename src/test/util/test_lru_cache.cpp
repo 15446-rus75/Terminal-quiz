@@ -132,11 +132,15 @@ BOOST_AUTO_TEST_CASE(custom_hash_and_collisions)
   LruCache< int, std::string, CollisionHash > cache(2);
   cache.put(1, "one");
   cache.put(2, "two");
-  cache.get(1);
+  const auto FIRST = cache.get(1);
+  BOOST_REQUIRE(FIRST.has_value());
+  BOOST_TEST(*FIRST == "one");
   cache.put(3, "three");
   BOOST_TEST(cache.contains(1));
   BOOST_TEST(!cache.contains(2));
-  BOOST_TEST(*cache.get(3) == "three");
+  const auto THIRD = cache.get(3);
+  BOOST_REQUIRE(THIRD.has_value());
+  BOOST_TEST(*THIRD == "three");
 }
 
 BOOST_AUTO_TEST_CASE(copy_survives_original_destruction)
@@ -206,16 +210,16 @@ BOOST_AUTO_TEST_CASE(failed_value_copy_leaves_cache_usable)
 {
   auto fail = std::make_shared< bool >(false);
   LruCache< int, CopyFailure > cache(1);
-  const CopyFailure first(10, fail);
-  const CopyFailure second(20, fail);
-  cache.put(1, first);
+  const CopyFailure FIRST(10, fail);
+  const CopyFailure SECOND(20, fail);
+  cache.put(1, FIRST);
   *fail = true;
-  BOOST_CHECK_THROW(cache.put(2, second), std::runtime_error);
+  BOOST_CHECK_THROW(cache.put(2, SECOND), std::runtime_error);
   *fail = false;
   BOOST_TEST(cache.size() == 1U);
   BOOST_REQUIRE(cache.get(1).has_value());
   BOOST_TEST(cache.get(1)->value == 10);
-  cache.put(2, second);
+  cache.put(2, SECOND);
   BOOST_TEST(!cache.contains(1));
   BOOST_TEST(cache.get(2)->value == 20);
 }
@@ -228,52 +232,52 @@ BOOST_AUTO_TEST_CASE(random_operations_match_independent_reference)
   std::mt19937 random(20261016);
   for (size_t step = 0; step < 5000; ++step)
   {
-    const int key = static_cast< int >(random() % 17);
-    const unsigned int operation = random() % 3;
-    const auto found = std::find_if(reference.begin(), reference.end(),
-                                    [key](const auto &entry)
+    const int KEY = static_cast< int >(random() % 17);
+    const unsigned int OPERATION = random() % 3;
+    const auto FOUND = std::find_if(reference.begin(), reference.end(),
+                                    [KEY](const auto &ENTRY)
                                     {
-                                      return entry.first == key;
+                                      return ENTRY.first == KEY;
                                     });
-    if (operation == 0)
+    if (OPERATION == 0)
     {
-      const int value = static_cast< int >(step);
-      cache.put(key, value);
-      if (found != reference.end())
+      const int VALUE = static_cast< int >(step);
+      cache.put(KEY, VALUE);
+      if (FOUND != reference.end())
       {
-        reference.erase(found);
+        reference.erase(FOUND);
       }
-      reference.emplace_back(key, value);
+      reference.emplace_back(KEY, VALUE);
       if (reference.size() > CAPACITY)
       {
         reference.erase(reference.begin());
       }
     }
-    else if (operation == 1)
+    else if (OPERATION == 1)
     {
-      const auto actual = cache.get(key);
-      BOOST_TEST(actual.has_value() == (found != reference.end()));
-      if (found != reference.end())
+      const auto ACTUAL = cache.get(KEY);
+      BOOST_TEST(ACTUAL.has_value() == (FOUND != reference.end()));
+      if (FOUND != reference.end())
       {
-        BOOST_TEST(*actual == found->second);
-        const auto entry = *found;
-        reference.erase(found);
-        reference.push_back(entry);
+        BOOST_TEST(*ACTUAL == FOUND->second);
+        const auto ENTRY = *FOUND;
+        reference.erase(FOUND);
+        reference.push_back(ENTRY);
       }
     }
     else
     {
-      BOOST_TEST(cache.contains(key) == (found != reference.end()));
+      BOOST_TEST(cache.contains(KEY) == (FOUND != reference.end()));
     }
     BOOST_TEST(cache.size() == reference.size());
     for (int candidate = 0; candidate < 17; ++candidate)
     {
-      const bool expected = std::any_of(reference.begin(), reference.end(),
-                                        [candidate](const auto &entry)
+      const bool EXPECTED = std::any_of(reference.begin(), reference.end(),
+                                        [candidate](const auto &ENTRY)
                                         {
-                                          return entry.first == candidate;
+                                          return ENTRY.first == candidate;
                                         });
-      BOOST_TEST(cache.contains(candidate) == expected);
+      BOOST_TEST(cache.contains(candidate) == EXPECTED);
     }
   }
 }
