@@ -1,8 +1,10 @@
 #include "open_tdb_client.hpp"
 
+#include <algorithm>
 #include <cstddef>
 #include <curl/curl.h>
 #include <curl/easy.h>
+#include <iterator>
 #include <memory>
 #include <stdexcept>
 #include <string>
