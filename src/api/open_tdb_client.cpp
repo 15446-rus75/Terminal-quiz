@@ -2,6 +2,7 @@
 
 #include <cstddef>
 #include <curl/curl.h>
+#include <curl/easy.h>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -12,6 +13,7 @@
 #include "../util/html_decoder.hpp"
 #include "../util/logger.hpp"
 #include <nlohmann/json.hpp>
+#include <nlohmann/json_fwd.hpp>
 
 namespace
 {
@@ -146,7 +148,7 @@ std::vector< quiz::core::Question > quiz::api::OpenTdbClient::fetchQuestions(con
   return questions;
 }
 
-std::string quiz::api::OpenTdbClient::buildUrl(const OpenTdbRequest &request) const
+std::string quiz::api::OpenTdbClient::buildUrl(const OpenTdbRequest &request)
 {
   if (request.amount < MIN_AMOUNT || request.amount > MAX_AMOUNT)
   {
@@ -228,10 +230,7 @@ std::vector< quiz::core::Question > quiz::api::OpenTdbClient::parseResponse(cons
 
     std::vector< core::Question > questions;
     questions.reserve(results.size());
-    for (const nlohmann::json &entry : results)
-    {
-      questions.push_back(parseQuestion(entry));
-    }
+    std::transform(results.begin(), results.end(), std::back_inserter(questions), parseQuestion);
     return questions;
   }
   catch (const nlohmann::json::exception &error)
