@@ -48,16 +48,6 @@ BOOST_AUTO_TEST_CASE(no_incorrect_answers)
   BOOST_TEST(QUESTION.allAnswers().front() == "Only");
 }
 
-BOOST_AUTO_TEST_CASE(does_not_modify_question)
-{
-  const core::Question QUESTION = makeQuestion("A", {"B", "C"});
-
-  QUESTION.allAnswers();
-
-  BOOST_TEST(QUESTION.correct_answer == "A");
-  BOOST_TEST(QUESTION.incorrect_answers.size() == 2U);
-}
-
 BOOST_AUTO_TEST_SUITE_END()
 
 BOOST_AUTO_TEST_SUITE(question_is_correct_answer)

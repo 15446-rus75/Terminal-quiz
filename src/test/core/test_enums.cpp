@@ -12,6 +12,43 @@ BOOST_TEST_DONT_PRINT_LOG_VALUE(quiz::core::Difficulty)
 BOOST_TEST_DONT_PRINT_LOG_VALUE(quiz::core::QuestionType)
 BOOST_TEST_DONT_PRINT_LOG_VALUE(quiz::core::Category)
 
+namespace
+{
+  struct CategoryRaw
+  {
+    core::Category category;
+    int id;
+    const char *name;
+  };
+
+  const std::array< CategoryRaw, 25 > CATEGORIES = {
+    {{core::Category::ANY, 0, "Any Category"},
+     {core::Category::GENERAL_KNOWLEDGE, 9, "General Knowledge"},
+     {core::Category::ENTERTAINMENT_BOOKS, 10, "Entertainment: Books"},
+     {core::Category::ENTERTAINMENT_FILM, 11, "Entertainment: Film"},
+     {core::Category::ENTERTAINMENT_MUSIC, 12, "Entertainment: Music"},
+     {core::Category::ENTERTAINMENT_MUSICALS_THEATRES, 13, "Entertainment: Musicals & Theatres"},
+     {core::Category::ENTERTAINMENT_TELEVISION, 14, "Entertainment: Television"},
+     {core::Category::ENTERTAINMENT_VIDEO_GAMES, 15, "Entertainment: Video Games"},
+     {core::Category::ENTERTAINMENT_BOARD_GAMES, 16, "Entertainment: Board Games"},
+     {core::Category::SCIENCE_NATURE, 17, "Science & Nature"},
+     {core::Category::SCIENCE_COMPUTERS, 18, "Science: Computers"},
+     {core::Category::SCIENCE_MATHEMATICS, 19, "Science: Mathematics"},
+     {core::Category::MYTHOLOGY, 20, "Mythology"},
+     {core::Category::SPORTS, 21, "Sports"},
+     {core::Category::GEOGRAPHY, 22, "Geography"},
+     {core::Category::HISTORY, 23, "History"},
+     {core::Category::POLITICS, 24, "Politics"},
+     {core::Category::ART, 25, "Art"},
+     {core::Category::CELEBRITIES, 26, "Celebrities"},
+     {core::Category::ANIMALS, 27, "Animals"},
+     {core::Category::VEHICLES, 28, "Vehicles"},
+     {core::Category::ENTERTAINMENT_COMICS, 29, "Entertainment: Comics"},
+     {core::Category::SCIENCE_GADGETS, 30, "Science: Gadgets"},
+     {core::Category::ENTERTAINMENT_ANIME, 31, "Entertainment: Japanese Anime & Manga"},
+     {core::Category::ENTERTAINMENT_CARTOON_ANIMATIONS, 32, "Entertainment: Cartoon & Animations"}}};
+}
+
 BOOST_AUTO_TEST_SUITE(enums_to_string)
 
 BOOST_AUTO_TEST_CASE(difficulty_values)
@@ -39,40 +76,11 @@ BOOST_AUTO_TEST_CASE(question_type_unknown_throws)
   BOOST_CHECK_THROW(core::toString(static_cast< core::QuestionType >(100)), std::invalid_argument);
 }
 
-BOOST_AUTO_TEST_CASE(category_names_match_open_tdb)
-{
-  BOOST_TEST(core::toString(core::Category::ANY) == "Any Category");
-  BOOST_TEST(core::toString(core::Category::GENERAL_KNOWLEDGE) == "General Knowledge");
-  BOOST_TEST(core::toString(core::Category::ENTERTAINMENT_BOOKS) == "Entertainment: Books");
-  BOOST_TEST(core::toString(core::Category::ENTERTAINMENT_FILM) == "Entertainment: Film");
-  BOOST_TEST(core::toString(core::Category::ENTERTAINMENT_MUSIC) == "Entertainment: Music");
-  BOOST_TEST(core::toString(core::Category::ENTERTAINMENT_MUSICALS_THEATRES) == "Entertainment: Musicals & Theatres");
-  BOOST_TEST(core::toString(core::Category::ENTERTAINMENT_TELEVISION) == "Entertainment: Television");
-  BOOST_TEST(core::toString(core::Category::ENTERTAINMENT_VIDEO_GAMES) == "Entertainment: Video Games");
-  BOOST_TEST(core::toString(core::Category::ENTERTAINMENT_BOARD_GAMES) == "Entertainment: Board Games");
-  BOOST_TEST(core::toString(core::Category::SCIENCE_NATURE) == "Science & Nature");
-  BOOST_TEST(core::toString(core::Category::SCIENCE_COMPUTERS) == "Science: Computers");
-  BOOST_TEST(core::toString(core::Category::SCIENCE_MATHEMATICS) == "Science: Mathematics");
-  BOOST_TEST(core::toString(core::Category::MYTHOLOGY) == "Mythology");
-  BOOST_TEST(core::toString(core::Category::SPORTS) == "Sports");
-  BOOST_TEST(core::toString(core::Category::GEOGRAPHY) == "Geography");
-  BOOST_TEST(core::toString(core::Category::HISTORY) == "History");
-  BOOST_TEST(core::toString(core::Category::POLITICS) == "Politics");
-  BOOST_TEST(core::toString(core::Category::ART) == "Art");
-  BOOST_TEST(core::toString(core::Category::CELEBRITIES) == "Celebrities");
-  BOOST_TEST(core::toString(core::Category::ANIMALS) == "Animals");
-  BOOST_TEST(core::toString(core::Category::VEHICLES) == "Vehicles");
-  BOOST_TEST(core::toString(core::Category::ENTERTAINMENT_COMICS) == "Entertainment: Comics");
-  BOOST_TEST(core::toString(core::Category::SCIENCE_GADGETS) == "Science: Gadgets");
-  BOOST_TEST(core::toString(core::Category::ENTERTAINMENT_ANIME) == "Entertainment: Japanese Anime & Manga");
-  BOOST_TEST(core::toString(core::Category::ENTERTAINMENT_CARTOON_ANIMATIONS) == "Entertainment: Cartoon & Animations");
-}
-
 BOOST_AUTO_TEST_CASE(category_unknown_throws)
 {
-  BOOST_CHECK_THROW(core::toString(static_cast< core::Category >(1)), std::invalid_argument);
-  BOOST_CHECK_THROW(core::toString(static_cast< core::Category >(33)), std::invalid_argument);
   BOOST_CHECK_THROW(core::toString(static_cast< core::Category >(-1)), std::invalid_argument);
+  BOOST_CHECK_THROW(core::toString(static_cast< core::Category >(8)), std::invalid_argument);
+  BOOST_CHECK_THROW(core::toString(static_cast< core::Category >(33)), std::invalid_argument);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
@@ -146,71 +154,46 @@ BOOST_AUTO_TEST_CASE(round_trip)
 
 BOOST_AUTO_TEST_SUITE_END()
 
-BOOST_AUTO_TEST_SUITE(enums_parse_category)
+BOOST_AUTO_TEST_SUITE(enums_category)
+
+BOOST_AUTO_TEST_CASE(conversions_for_every_category)
+{
+  for (const CategoryRaw &row : CATEGORIES)
+  {
+    BOOST_TEST(static_cast< int >(row.category) == row.id);
+    BOOST_TEST(core::toString(row.category) == row.name);
+    BOOST_TEST(core::parseCategory(row.name) == row.category);
+    BOOST_TEST(core::parseCategory(std::to_string(row.id)) == row.category);
+  }
+}
 
 BOOST_AUTO_TEST_CASE(any_keyword)
 {
   BOOST_TEST(core::parseCategory("any") == core::Category::ANY);
   BOOST_TEST(core::parseCategory("ANY") == core::Category::ANY);
-  BOOST_TEST(core::parseCategory("0") == core::Category::ANY);
 }
 
-BOOST_AUTO_TEST_CASE(by_name_case_insensitive)
+BOOST_AUTO_TEST_CASE(parse_case_insensitive)
 {
-  BOOST_TEST(core::parseCategory("General Knowledge") == core::Category::GENERAL_KNOWLEDGE);
   BOOST_TEST(core::parseCategory("general knowledge") == core::Category::GENERAL_KNOWLEDGE);
   BOOST_TEST(core::parseCategory("SCIENCE & NATURE") == core::Category::SCIENCE_NATURE);
   BOOST_TEST(core::parseCategory("entertainment: japanese anime & manga") == core::Category::ENTERTAINMENT_ANIME);
 }
 
-BOOST_AUTO_TEST_CASE(by_numeric_id)
-{
-  BOOST_TEST(core::parseCategory("9") == core::Category::GENERAL_KNOWLEDGE);
-  BOOST_TEST(core::parseCategory("17") == core::Category::SCIENCE_NATURE);
-  BOOST_TEST(core::parseCategory("32") == core::Category::ENTERTAINMENT_CARTOON_ANIMATIONS);
-}
-
-BOOST_AUTO_TEST_CASE(unknown_throws)
+BOOST_AUTO_TEST_CASE(parse_unknown_throws)
 {
   BOOST_CHECK_THROW(core::parseCategory(""), std::invalid_argument);
   BOOST_CHECK_THROW(core::parseCategory("cooking"), std::invalid_argument);
-  BOOST_CHECK_THROW(core::parseCategory("1"), std::invalid_argument);
+  BOOST_CHECK_THROW(core::parseCategory("Science"), std::invalid_argument);
+  BOOST_CHECK_THROW(core::parseCategory("Entertainment"), std::invalid_argument);
+  BOOST_CHECK_THROW(core::parseCategory("Video Games"), std::invalid_argument);
+  BOOST_CHECK_THROW(core::parseCategory("Computers"), std::invalid_argument);
+  BOOST_CHECK_THROW(core::parseCategory("Science: Math"), std::invalid_argument);
+  BOOST_CHECK_THROW(core::parseCategory("Sport"), std::invalid_argument);
+  BOOST_CHECK_THROW(core::parseCategory("Entertainment: Anime"), std::invalid_argument);
+  BOOST_CHECK_THROW(core::parseCategory("8"), std::invalid_argument);
   BOOST_CHECK_THROW(core::parseCategory("33"), std::invalid_argument);
   BOOST_CHECK_THROW(core::parseCategory("-1"), std::invalid_argument);
-}
-
-BOOST_AUTO_TEST_CASE(round_trip_for_every_category)
-{
-  const std::array< core::Category, 25 > VALUES = {core::Category::ANY,
-                                                   core::Category::GENERAL_KNOWLEDGE,
-                                                   core::Category::ENTERTAINMENT_BOOKS,
-                                                   core::Category::ENTERTAINMENT_FILM,
-                                                   core::Category::ENTERTAINMENT_MUSIC,
-                                                   core::Category::ENTERTAINMENT_MUSICALS_THEATRES,
-                                                   core::Category::ENTERTAINMENT_TELEVISION,
-                                                   core::Category::ENTERTAINMENT_VIDEO_GAMES,
-                                                   core::Category::ENTERTAINMENT_BOARD_GAMES,
-                                                   core::Category::SCIENCE_NATURE,
-                                                   core::Category::SCIENCE_COMPUTERS,
-                                                   core::Category::SCIENCE_MATHEMATICS,
-                                                   core::Category::MYTHOLOGY,
-                                                   core::Category::SPORTS,
-                                                   core::Category::GEOGRAPHY,
-                                                   core::Category::HISTORY,
-                                                   core::Category::POLITICS,
-                                                   core::Category::ART,
-                                                   core::Category::CELEBRITIES,
-                                                   core::Category::ANIMALS,
-                                                   core::Category::VEHICLES,
-                                                   core::Category::ENTERTAINMENT_COMICS,
-                                                   core::Category::SCIENCE_GADGETS,
-                                                   core::Category::ENTERTAINMENT_ANIME,
-                                                   core::Category::ENTERTAINMENT_CARTOON_ANIMATIONS};
-  for (const core::Category value : VALUES)
-  {
-    BOOST_TEST(core::parseCategory(core::toString(value)) == value);
-    BOOST_TEST(core::parseCategory(std::to_string(static_cast< int >(value))) == value);
-  }
 }
 
 BOOST_AUTO_TEST_SUITE_END()
