@@ -35,8 +35,8 @@ namespace quiz
       std::vector< core::Question > fetchQuestions(const OpenTdbRequest &request) override;
 
     private:
-      std::string buildUrl(const OpenTdbRequest &request) const;
-      std::string performGet(const std::string &url);
+      static std::string buildUrl(const OpenTdbRequest &request);
+      static std::string performGet(const std::string &url);
       std::vector< core::Question > parseResponse(const std::string &json);
 
       static constexpr const char *BASE_URL = "https://opentdb.com/api.php";
