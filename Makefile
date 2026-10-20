@@ -25,7 +25,9 @@ TEST_MODULES   := $(patsubst $(TEST_DIR)/%/Makefile,%,$(wildcard $(TEST_DIR)/*/M
 export CXX TEST_CXXFLAGS LIBS BOOST_FLAGS BOOST_LIBS TEST_BUILD_DIR
 
 .DEFAULT_GOAL := build
-.PHONY: build run clean test check-format check-headers check-tidy check-cppcheck check-all fix-format
+.PHONY: all build run clean test check-format check-headers check-tidy check-cppcheck check-all fix-format
+
+all: clean check-all build test run
 
 build: $(BIN)
 
