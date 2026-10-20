@@ -18,19 +18,21 @@ BOOST_AUTO_TEST_CASE(plain_text_and_empty_input)
 
 BOOST_AUTO_TEST_CASE(named_entities_and_case_sensitivity)
 {
+  BOOST_TEST(HtmlDecoder::decode("&AElig;") == "\xC3\x86");
+  BOOST_TEST(HtmlDecoder::decode("&Aacute;") == "\xC3\x81");
+  BOOST_TEST(HtmlDecoder::decode("&Acirc;") == "\xC3\x82");
+  BOOST_TEST(HtmlDecoder::decode("&zeta;") == "\xCE\xB6");
+  BOOST_TEST(HtmlDecoder::decode("&zwj;") == "\xE2\x80\x8D");
+  BOOST_TEST(HtmlDecoder::decode("&zwnj;") == "\xE2\x80\x8C");
   BOOST_TEST(HtmlDecoder::decode("&quot;A &amp; B&quot; &lt;x&gt; &apos;y&apos;") == "\"A & B\" <x> 'y'");
   BOOST_TEST(HtmlDecoder::decode("&eacute;&Eacute;&pi;&euro;") == "\xC3\xA9\xC3\x89\xCF\x80\xE2\x82\xAC");
   BOOST_TEST(HtmlDecoder::decode("&nbsp;&copy;&reg;&mdash;") == "\xC2\xA0\xC2\xA9\xC2\xAE\xE2\x80\x94");
   BOOST_TEST(HtmlDecoder::decode("&AMP;") == "&AMP;");
 }
 
-BOOST_AUTO_TEST_CASE(named_entity_lookup_boundaries)
+BOOST_AUTO_TEST_CASE(unknown_named_entity_lookup_boundaries)
 {
-  const std::array< std::pair< std::string, std::string >, 8 > EXAMPLES = {{
-    {"&AElig;", "\xC3\x86"},
-    {"&Aacute;", "\xC3\x81"},
-    {"&zwj;", "\xE2\x80\x8D"},
-    {"&zwnj;", "\xE2\x80\x8C"},
+  const std::array< std::pair< std::string, std::string >, 4 > EXAMPLES = {{
     {"&AAA;", "&AAA;"},
     {"&zzzz;", "&zzzz;"},
     {"&AEli;", "&AEli;"},
@@ -47,6 +49,11 @@ BOOST_AUTO_TEST_CASE(named_entity_lookup_boundaries)
 
 BOOST_AUTO_TEST_CASE(decimal_and_hexadecimal_references)
 {
+  const std::string ENCODED_OPEN_TDB_QUESTION =
+    "Which British female singer and songwriter was sampled Eminem&#039;s hit single &#039;Stan&#039;?";
+  const std::string EXPECTED_OPEN_TDB_QUESTION =
+    "Which British female singer and songwriter was sampled Eminem's hit single 'Stan'?";
+  BOOST_TEST(HtmlDecoder::decode(ENCODED_OPEN_TDB_QUESTION) == EXPECTED_OPEN_TDB_QUESTION);
   BOOST_TEST(HtmlDecoder::decode("&#65;&#x41;&#X41;") == "AAA");
   BOOST_TEST(HtmlDecoder::decode("&#1046;&#x416;") == "\xD0\x96\xD0\x96");
   BOOST_TEST(HtmlDecoder::decode("&#128512;&#x1F600;") == "\xF0\x9F\x98\x80\xF0\x9F\x98\x80");
