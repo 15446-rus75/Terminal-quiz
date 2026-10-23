@@ -7,8 +7,8 @@
 #include <vector>
 
 #include "../core/question.hpp"
-#include "../service/favorite_service.hpp"
-#include "../service/question_service.hpp"
+#include "../services/favorite_service.hpp"
+#include "../services/question_service.hpp"
 #include "forms.hpp"
 #include "prompter.hpp"
 #include "renderer.hpp"

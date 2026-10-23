@@ -7,7 +7,7 @@
 #include <vector>
 
 #include "../core/attempt.hpp"
-#include "../service/history_service.hpp"
+#include "../services/history_service.hpp"
 #include "prompter.hpp"
 #include "renderer.hpp"
 #include "screen.hpp"

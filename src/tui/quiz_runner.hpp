@@ -6,8 +6,8 @@
 #include <vector>
 
 #include "../core/question.hpp"
-#include "../service/favorite_service.hpp"
-#include "../service/quiz_service.hpp"
+#include "../services/favorite_service.hpp"
+#include "../services/quiz_service.hpp"
 #include "answer_arranger.hpp"
 #include "quiz_session.hpp"
 #include "renderer.hpp"

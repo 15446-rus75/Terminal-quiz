@@ -7,7 +7,7 @@
 #include <vector>
 
 #include "../core/question.hpp"
-#include "../service/favorite_service.hpp"
+#include "../services/favorite_service.hpp"
 #include "prompter.hpp"
 #include "quiz_runner.hpp"
 #include "renderer.hpp"

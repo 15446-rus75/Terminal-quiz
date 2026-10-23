@@ -9,8 +9,8 @@
 
 #include "../core/custom_test.hpp"
 #include "../core/question.hpp"
-#include "../service/custom_test_service.hpp"
-#include "../service/question_service.hpp"
+#include "../services/custom_test_service.hpp"
+#include "../services/question_service.hpp"
 #include "forms.hpp"
 #include "prompter.hpp"
 #include "quiz_runner.hpp"

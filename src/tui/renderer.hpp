@@ -10,8 +10,8 @@
 #include "../core/custom_test.hpp"
 #include "../core/question.hpp"
 #include "../core/statistics.hpp"
-#include "../service/history_service.hpp"
-#include "../service/quiz_service.hpp"
+#include "../services/history_service.hpp"
+#include "../services/quiz_service.hpp"
 #include "terminal.hpp"
 
 namespace quiz

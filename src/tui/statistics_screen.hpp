@@ -5,7 +5,7 @@
 #include <memory>
 #include <string>
 
-#include "../service/statistics_service.hpp"
+#include "../services/statistics_service.hpp"
 #include "renderer.hpp"
 #include "screen.hpp"
 #include "terminal.hpp"
