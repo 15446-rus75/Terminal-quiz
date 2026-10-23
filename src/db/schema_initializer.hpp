@@ -9,7 +9,6 @@ namespace quiz
 {
   namespace db
   {
-
     class SchemaInitializer
     {
     public:
