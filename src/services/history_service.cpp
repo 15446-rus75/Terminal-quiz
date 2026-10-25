@@ -70,10 +70,8 @@ std::optional< quiz::service::AttemptDetails > quiz::service::HistoryService::de
     return std::nullopt;
   }
 
-  AttemptDetails result{};
-  result.questions.reserve(attempt->answers.size());
-  std::transform(attempt->answers.begin(), attempt->answers.end(), std::back_inserter(result.questions),
-                 QuestionLoader(*question_repository_));
-  result.attempt = std::move(*attempt);
-  return result;
+  std::vector< core::Question > questions;
+  questions.reserve(attempt->answers.size());
+  std::ranges::transform(attempt->answers, std::back_inserter(questions), QuestionLoader(*question_repository_));
+  return AttemptDetails{.attempt = std::move(*attempt), .questions = std::move(questions)};
 }

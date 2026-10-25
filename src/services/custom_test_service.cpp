@@ -68,23 +68,22 @@ size_t quiz::service::CustomTestService::create(size_t user_id, const std::strin
   }
 
   std::vector< size_t > sorted_ids = question_ids;
-  std::sort(sorted_ids.begin(), sorted_ids.end());
-  if (std::adjacent_find(sorted_ids.begin(), sorted_ids.end()) != sorted_ids.end())
+  std::ranges::sort(sorted_ids);
+  if (std::ranges::adjacent_find(sorted_ids) != sorted_ids.end())
   {
     throw std::invalid_argument("Custom test contains duplicate questions");
   }
 
   std::vector< core::Question > questions;
   questions.reserve(question_ids.size());
-  std::transform(question_ids.begin(), question_ids.end(), std::back_inserter(questions),
-                 QuestionLoader(*question_repository_));
+  std::ranges::transform(question_ids, std::back_inserter(questions), QuestionLoader(*question_repository_));
 
-  core::CustomTest test{};
-  test.user_id = user_id;
-  test.name = name;
-  test.created_at = std::chrono::system_clock::now();
-  test.question_ids = question_ids;
-  return custom_test_repository_->save(test);
+  const core::CustomTest TEST{.id = 0,
+                              .user_id = user_id,
+                              .name = name,
+                              .created_at = std::chrono::system_clock::now(),
+                              .question_ids = question_ids};
+  return custom_test_repository_->save(TEST);
 }
 
 std::optional< quiz::core::CustomTest > quiz::service::CustomTestService::findById(size_t id)
@@ -112,7 +111,6 @@ std::vector< quiz::core::Question > quiz::service::CustomTestService::loadQuesti
 
   std::vector< core::Question > questions;
   questions.reserve(TEST->question_ids.size());
-  std::transform(TEST->question_ids.begin(), TEST->question_ids.end(), std::back_inserter(questions),
-                 QuestionLoader(*question_repository_));
+  std::ranges::transform(TEST->question_ids, std::back_inserter(questions), QuestionLoader(*question_repository_));
   return questions;
 }

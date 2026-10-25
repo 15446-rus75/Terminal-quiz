@@ -17,31 +17,6 @@
 
 namespace
 {
-  class HasQuestionId
-  {
-  public:
-    explicit HasQuestionId(size_t question_id): question_id_(question_id)
-    {
-    }
-
-    bool operator()(const quiz::core::Question &question) const
-    {
-      return question.id == question_id_;
-    }
-
-  private:
-    size_t question_id_;
-  };
-
-  class IsCorrect
-  {
-  public:
-    bool operator()(const quiz::core::AttemptAnswer &answer) const
-    {
-      return answer.is_correct;
-    }
-  };
-
   class AnswerBuilder
   {
   public:
@@ -53,19 +28,18 @@ namespace
 
     quiz::core::AttemptAnswer operator()(const quiz::service::QuizAnswer &answer) const
     {
-      const auto FOUND = std::find_if(questions_.begin(), questions_.end(), HasQuestionId(answer.question_id));
+      const auto FOUND = std::ranges::find(questions_, answer.question_id, &quiz::core::Question::id);
       if (FOUND == questions_.end())
       {
         throw std::invalid_argument("Answer refers to a question that is not part of the quiz");
       }
 
-      quiz::core::AttemptAnswer result{};
-      result.attempt_id = attempt_id_;
-      result.question_id = answer.question_id;
-      result.user_answer = answer.user_answer;
-      result.is_correct = FOUND->isCorrectAnswer(answer.user_answer);
-      result.position = static_cast< size_t >(std::distance(questions_.begin(), FOUND));
-      return result;
+      return quiz::core::AttemptAnswer{.id = 0,
+                                       .attempt_id = attempt_id_,
+                                       .question_id = answer.question_id,
+                                       .user_answer = answer.user_answer,
+                                       .is_correct = FOUND->isCorrectAnswer(answer.user_answer),
+                                       .position = static_cast< size_t >(std::distance(questions_.begin(), FOUND))};
     }
 
   private:
@@ -90,13 +64,15 @@ size_t quiz::service::QuizService::startQuiz(size_t user_id, const std::vector< 
     throw std::invalid_argument("Quiz must contain at least one question");
   }
 
-  core::Attempt attempt{};
-  attempt.user_id = user_id;
-  attempt.score = 0;
-  attempt.total_questions = questions.size();
-  attempt.started_at = std::chrono::system_clock::now();
-  attempt.finished_at = attempt.started_at;
-  return attempt_repository_->save(attempt);
+  const auto STARTED_AT = std::chrono::system_clock::now();
+  const core::Attempt ATTEMPT{.id = 0,
+                              .user_id = user_id,
+                              .score = 0,
+                              .total_questions = questions.size(),
+                              .started_at = STARTED_AT,
+                              .finished_at = STARTED_AT,
+                              .answers = {}};
+  return attempt_repository_->save(ATTEMPT);
 }
 
 void quiz::service::QuizService::submitAnswers(size_t attempt_id, const std::vector< core::Question > &questions,
@@ -104,8 +80,7 @@ void quiz::service::QuizService::submitAnswers(size_t attempt_id, const std::vec
 {
   std::vector< core::AttemptAnswer > attempt_answers;
   attempt_answers.reserve(answers.size());
-  std::transform(answers.begin(), answers.end(), std::back_inserter(attempt_answers),
-                 AnswerBuilder(attempt_id, questions));
+  std::ranges::transform(answers, std::back_inserter(attempt_answers), AnswerBuilder(attempt_id, questions));
   attempt_repository_->saveAnswers(attempt_id, attempt_answers);
 }
 
@@ -117,15 +92,11 @@ quiz::service::QuizResult quiz::service::QuizService::finishQuiz(size_t attempt_
     throw std::invalid_argument("Attempt not found");
   }
 
-  const size_t SCORE = static_cast< size_t >(
-    std::count_if(ATTEMPT->answers.begin(), ATTEMPT->answers.end(), IsCorrect{}));
+  const size_t SCORE =
+    static_cast< size_t >(std::ranges::count(ATTEMPT->answers, true, &core::AttemptAnswer::is_correct));
   const size_t TOTAL = ATTEMPT->total_questions;
   attempt_repository_->finish(attempt_id, SCORE, std::chrono::system_clock::now());
 
-  QuizResult result{};
-  result.attempt_id = attempt_id;
-  result.score = SCORE;
-  result.total = TOTAL;
-  result.accuracy = TOTAL == 0 ? 0.0 : static_cast< double >(SCORE) / static_cast< double >(TOTAL);
-  return result;
+  const double ACCURACY = TOTAL == 0 ? 0.0 : static_cast< double >(SCORE) / static_cast< double >(TOTAL);
+  return QuizResult{.attempt_id = attempt_id, .score = SCORE, .total = TOTAL, .accuracy = ACCURACY};
 }

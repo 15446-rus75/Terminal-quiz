@@ -86,7 +86,7 @@ std::vector< quiz::core::Question > quiz::service::QuestionService::fetchQuestio
                                                                                    core::Difficulty difficulty,
                                                                                    core::QuestionType type)
 {
-  const CacheKey KEY{amount, category, difficulty, type};
+  const CacheKey KEY{.amount = amount, .category = category, .difficulty = difficulty, .type = type};
   std::optional< std::vector< core::Question > > cached = cache_.get(KEY);
   if (cached.has_value())
   {
@@ -137,7 +137,8 @@ std::optional< quiz::core::Question > quiz::service::QuestionService::findById(s
 
 std::vector< quiz::core::Question > quiz::service::QuestionService::fetchFromApi(const CacheKey &key)
 {
-  const api::OpenTdbRequest REQUEST{key.amount, key.category, key.difficulty, key.type};
+  const api::OpenTdbRequest REQUEST{
+    .amount = key.amount, .category = key.category, .difficulty = key.difficulty, .type = key.type};
   return open_tdb_client_->fetchQuestions(REQUEST);
 }
 
@@ -148,7 +149,7 @@ std::vector< quiz::core::Question > quiz::service::QuestionService::fetchFromDb(
   std::vector< core::Question > questions = question_repository_->findByFilter(key.category, key.difficulty, LIMIT);
   if (!ANY_TYPE)
   {
-    questions.erase(std::remove_if(questions.begin(), questions.end(), HasOtherType(key.type)), questions.end());
+    std::erase_if(questions, HasOtherType(key.type));
   }
   if (questions.size() > key.amount)
   {
@@ -164,5 +165,5 @@ void quiz::service::QuestionService::persistToDb(std::vector< core::Question > &
   {
     throw std::runtime_error("Question repository returned unexpected number of identifiers");
   }
-  std::transform(questions.begin(), questions.end(), IDS.begin(), questions.begin(), IdAssigner{});
+  std::ranges::transform(questions, IDS, questions.begin(), IdAssigner{});
 }
