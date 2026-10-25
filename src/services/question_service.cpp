@@ -67,8 +67,7 @@ size_t quiz::service::QuestionService::CacheKeyHash::operator()(const CacheKey &
 quiz::service::QuestionService::QuestionService(std::shared_ptr< api::IOpenTdbClient > open_tdb_client,
                                                 std::shared_ptr< db::IQuestionRepository > question_repository,
                                                 size_t cache_capacity):
-  open_tdb_client_(std::move(open_tdb_client)),
-  question_repository_(std::move(question_repository)),
+  open_tdb_client_(std::move(open_tdb_client)), question_repository_(std::move(question_repository)),
   cache_(cache_capacity)
 {
   if (open_tdb_client_ == nullptr)

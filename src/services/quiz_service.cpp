@@ -21,8 +21,7 @@ namespace
   {
   public:
     AnswerBuilder(size_t attempt_id, const std::vector< quiz::core::Question > &questions):
-      attempt_id_(attempt_id),
-      questions_(questions)
+      attempt_id_(attempt_id), questions_(questions)
     {
     }
 

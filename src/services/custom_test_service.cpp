@@ -42,8 +42,7 @@ namespace
 
 quiz::service::CustomTestService::CustomTestService(std::shared_ptr< db::ICustomTestRepository > custom_test_repository,
                                                     std::shared_ptr< db::IQuestionRepository > question_repository):
-  custom_test_repository_(std::move(custom_test_repository)),
-  question_repository_(std::move(question_repository))
+  custom_test_repository_(std::move(custom_test_repository)), question_repository_(std::move(question_repository))
 {
   if (custom_test_repository_ == nullptr)
   {

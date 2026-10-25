@@ -40,8 +40,7 @@ namespace
 
 quiz::service::HistoryService::HistoryService(std::shared_ptr< db::IAttemptRepository > attempt_repository,
                                               std::shared_ptr< db::IQuestionRepository > question_repository):
-  attempt_repository_(std::move(attempt_repository)),
-  question_repository_(std::move(question_repository))
+  attempt_repository_(std::move(attempt_repository)), question_repository_(std::move(question_repository))
 {
   if (attempt_repository_ == nullptr)
   {
