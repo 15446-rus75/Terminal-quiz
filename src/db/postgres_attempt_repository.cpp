@@ -76,26 +76,25 @@ void quiz::db::PostgresAttemptRepository::finish(size_t attempt_id, size_t score
 
 std::vector< quiz::core::Attempt > quiz::db::PostgresAttemptRepository::findByUserId(size_t user_id, size_t limit)
 {
-  detail::Transaction transaction(database_);
+  const auto CONNECTION = detail::getConnection(database_);
   const ResultSet ROWS =
-    transaction.connection().execute(std::string("SELECT ") + detail::ATTEMPT_COLUMNS +
-                                       " FROM attempts WHERE user_id=$1 ORDER BY started_at DESC,id DESC LIMIT $2",
-                                     {detail::number(user_id), detail::number(limit)});
-  auto result = detail::readAttempts(transaction.connection(), ROWS);
-  transaction.commit();
+    CONNECTION->execute(std::string("SELECT ") + detail::ATTEMPT_COLUMNS +
+                          " FROM attempts WHERE user_id=$1 ORDER BY started_at DESC,id DESC LIMIT $2",
+                        {detail::number(user_id), detail::number(limit)});
+  auto result = detail::readAttempts(*CONNECTION, ROWS);
   return result;
 }
 
 std::optional< quiz::core::Attempt > quiz::db::PostgresAttemptRepository::findById(size_t id)
 {
-  detail::Transaction transaction(database_);
-  const ResultSet ROWS = transaction.connection().execute(
+  const auto CONNECTION = detail::getConnection(database_);
+  const ResultSet ROWS = CONNECTION->execute(
     std::string("SELECT ") + detail::ATTEMPT_COLUMNS + " FROM attempts WHERE id=$1", {detail::number(id)});
-  auto result = detail::readAttempts(transaction.connection(), ROWS);
-  transaction.commit();
-  if (result.empty())
+  auto entries = detail::readAttempts(*CONNECTION, ROWS);
+  if (entries.empty())
   {
     return std::nullopt;
   }
-  return std::move(result.front());
+  std::optional< core::Attempt > result(std::in_place, std::move(entries.front()));
+  return result;
 }

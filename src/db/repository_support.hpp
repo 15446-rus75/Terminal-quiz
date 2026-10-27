@@ -41,7 +41,9 @@ namespace quiz
       };
 
       void requireDatabase(const std::shared_ptr< IDatabase > &database);
+      std::shared_ptr< IConnection > getConnection(const std::shared_ptr< IDatabase > &database);
       std::string number(size_t value);
+      std::string idArray(const std::vector< size_t > &ids);
       size_t readSize(const std::string &text);
       void requireColumns(const Row &row, size_t count);
       std::string timeParameter(std::chrono::system_clock::time_point time);
@@ -51,6 +53,7 @@ namespace quiz
       void validateQuestion(const core::Question &question);
       void validateFilter(core::Category category, core::Difficulty difficulty);
       size_t saveQuestion(IConnection &connection, const core::Question &question);
+      std::vector< size_t > saveQuestionsBatch(IConnection &connection, const std::vector< core::Question > &questions);
       std::vector< core::Question > readQuestions(IConnection &connection, const ResultSet &rows);
       void replaceAnswers(IConnection &connection, size_t attempt_id,
                           const std::vector< core::AttemptAnswer > &answers);

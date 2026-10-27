@@ -5,6 +5,7 @@
 #include <optional>
 #include <stdexcept>
 #include <string>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -15,6 +16,7 @@
 namespace
 {
   constexpr size_t TEST_COLUMN_COUNT = 4;
+  constexpr size_t LINK_COLUMN_COUNT = 2;
   constexpr size_t NAME_COLUMN = 2;
   constexpr size_t CREATED_COLUMN = 3;
   constexpr char TEST_COLUMNS[] = "id,user_id,name,(EXTRACT(EPOCH FROM created_at)*1000000)::bigint::text";
@@ -23,6 +25,9 @@ namespace
   {
     std::vector< quiz::core::CustomTest > result;
     result.reserve(rows.size());
+    std::vector< size_t > ids;
+    ids.reserve(rows.size());
+    std::unordered_map< size_t, size_t > positions;
     for (const auto &row : rows)
     {
       quiz::db::detail::requireColumns(row, TEST_COLUMN_COUNT);
@@ -31,18 +36,29 @@ namespace
       test.user_id = quiz::db::detail::readSize(row[1]);
       test.name = row[NAME_COLUMN];
       test.created_at = quiz::db::detail::readTime(row[CREATED_COLUMN]);
+      if (!positions.emplace(test.id, result.size()).second)
+      {
+        throw std::runtime_error("Duplicate custom test in database result");
+      }
+      ids.push_back(test.id);
+      result.push_back(std::move(test));
+    }
+    if (!ids.empty())
+    {
       const quiz::db::ResultSet QUESTIONS =
-        connection.execute("SELECT question_id FROM custom_test_questions WHERE test_id=$1 ORDER BY position",
-                           {quiz::db::detail::number(test.id)});
+        connection.execute("SELECT test_id,question_id FROM custom_test_questions WHERE test_id=ANY($1::bigint[]) "
+                           "ORDER BY test_id,position",
+                           {quiz::db::detail::idArray(ids)});
       for (const auto &question : QUESTIONS)
       {
-        quiz::db::detail::requireColumns(question, 1);
-        test.question_ids.push_back(quiz::db::detail::readSize(question.front()));
+        quiz::db::detail::requireColumns(question, LINK_COLUMN_COUNT);
+        result.at(positions.at(quiz::db::detail::readSize(question[0])))
+          .question_ids.push_back(quiz::db::detail::readSize(question[1]));
       }
-      result.push_back(std::move(test));
     }
     return result;
   }
+
 }
 
 quiz::db::PostgresCustomTestRepository::PostgresCustomTestRepository(std::shared_ptr< IDatabase > database):
@@ -87,26 +103,25 @@ void quiz::db::PostgresCustomTestRepository::saveQuestions(IConnection &connecti
 
 std::optional< quiz::core::CustomTest > quiz::db::PostgresCustomTestRepository::findById(size_t id)
 {
-  detail::Transaction transaction(database_);
-  const ResultSet ROWS = transaction.connection().execute(
-    std::string("SELECT ") + TEST_COLUMNS + " FROM custom_tests WHERE id=$1", {detail::number(id)});
-  auto result = readTests(transaction.connection(), ROWS);
-  transaction.commit();
-  if (result.empty())
+  const auto CONNECTION = detail::getConnection(database_);
+  const ResultSet ROWS =
+    CONNECTION->execute(std::string("SELECT ") + TEST_COLUMNS + " FROM custom_tests WHERE id=$1", {detail::number(id)});
+  auto entries = readTests(*CONNECTION, ROWS);
+  if (entries.empty())
   {
     return std::nullopt;
   }
-  return std::move(result.front());
+  std::optional< core::CustomTest > result(std::in_place, std::move(entries.front()));
+  return result;
 }
 
 std::vector< quiz::core::CustomTest > quiz::db::PostgresCustomTestRepository::findByUserId(size_t user_id)
 {
-  detail::Transaction transaction(database_);
-  const ResultSet ROWS = transaction.connection().execute(
-    std::string("SELECT ") + TEST_COLUMNS + " FROM custom_tests WHERE user_id=$1 ORDER BY created_at DESC,id DESC",
-    {detail::number(user_id)});
-  auto result = readTests(transaction.connection(), ROWS);
-  transaction.commit();
+  const auto CONNECTION = detail::getConnection(database_);
+  const ResultSet ROWS = CONNECTION->execute(std::string("SELECT ") + TEST_COLUMNS +
+                                               " FROM custom_tests WHERE user_id=$1 ORDER BY created_at DESC,id DESC",
+                                             {detail::number(user_id)});
+  auto result = readTests(*CONNECTION, ROWS);
   return result;
 }
 
