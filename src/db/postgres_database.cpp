@@ -13,11 +13,7 @@
 #include <vector>
 
 #include "idatabase.hpp"
-#if __has_include(<libpq-fe.h>)
-#include <libpq-fe.h>
-#else
 #include <postgresql/libpq-fe.h>
-#endif
 
 namespace
 {
