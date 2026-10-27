@@ -1,5 +1,5 @@
 CXX           := g++
-CXXFLAGS_BASE := -std=c++20 -Wall -Wextra -Wpedantic
+CXXFLAGS_BASE := -std=c++20 -Wall -Wextra -Wpedantic -pthread
 CXXFLAGS      := $(CXXFLAGS_BASE) -O2 -g -MMD -MP
 INCLUDES      := -Isrc
 LIBS          := -lpqxx -lpq -lcurl
