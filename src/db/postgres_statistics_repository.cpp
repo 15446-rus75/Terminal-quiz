@@ -21,6 +21,10 @@ namespace
 
   std::string groupedStatisticsSql(const std::string &column)
   {
+    if (column != "category" && column != "difficulty")
+    {
+      throw std::invalid_argument("Unsupported statistics column");
+    }
     return "SELECT q." + column +
            ",COUNT(DISTINCT a.id),COUNT(*) FILTER (WHERE ans.is_correct),COUNT(*) "
            "FROM attempts a JOIN attempt_answers ans ON ans.attempt_id=a.id JOIN questions q ON q.id=ans.question_id "
@@ -37,11 +41,10 @@ quiz::db::PostgresStatisticsRepository::PostgresStatisticsRepository(std::shared
 
 quiz::core::OverallStats quiz::db::PostgresStatisticsRepository::getOverall(size_t user_id)
 {
-  detail::Transaction transaction(database_);
-  const ResultSet ROWS =
-    transaction.connection().execute("SELECT COUNT(*),COALESCE(SUM(total_questions),0),COALESCE(SUM(score),0) "
-                                     "FROM attempts WHERE user_id=$1 AND finished_at IS NOT NULL",
-                                     {detail::number(user_id)});
+  const auto CONNECTION = detail::getConnection(database_);
+  const ResultSet ROWS = CONNECTION->execute("SELECT COUNT(*),COALESCE(SUM(total_questions),0),COALESCE(SUM(score),0) "
+                                             "FROM attempts WHERE user_id=$1 AND finished_at IS NOT NULL",
+                                             {detail::number(user_id)});
   if (ROWS.size() != 1)
   {
     throw std::runtime_error("Unexpected overall statistics result");
@@ -52,14 +55,13 @@ quiz::core::OverallStats quiz::db::PostgresStatisticsRepository::getOverall(size
   result.total_questions = detail::readSize(ROWS.front()[1]);
   result.total_correct = detail::readSize(ROWS.front()[CORRECT_COLUMN]);
   result.overall_accuracy = detail::accuracy(result.total_correct, result.total_questions);
-  transaction.commit();
   return result;
 }
 
 std::vector< quiz::core::CategoryStats > quiz::db::PostgresStatisticsRepository::getByCategory(size_t user_id)
 {
-  detail::Transaction transaction(database_);
-  const ResultSet ROWS = transaction.connection().execute(groupedStatisticsSql("category"), {detail::number(user_id)});
+  const auto CONNECTION = detail::getConnection(database_);
+  const ResultSet ROWS = CONNECTION->execute(groupedStatisticsSql("category"), {detail::number(user_id)});
   std::vector< core::CategoryStats > result;
   result.reserve(ROWS.size());
   for (const auto &row : ROWS)
@@ -72,15 +74,13 @@ std::vector< quiz::core::CategoryStats > quiz::db::PostgresStatisticsRepository:
     const size_t TOTAL = detail::readSize(row[GROUP_TOTAL_COLUMN]);
     result.push_back({CATEGORY, ATTEMPTS, CORRECT, TOTAL, detail::accuracy(CORRECT, TOTAL)});
   }
-  transaction.commit();
   return result;
 }
 
 std::vector< quiz::core::DifficultyStats > quiz::db::PostgresStatisticsRepository::getByDifficulty(size_t user_id)
 {
-  detail::Transaction transaction(database_);
-  const ResultSet ROWS =
-    transaction.connection().execute(groupedStatisticsSql("difficulty"), {detail::number(user_id)});
+  const auto CONNECTION = detail::getConnection(database_);
+  const ResultSet ROWS = CONNECTION->execute(groupedStatisticsSql("difficulty"), {detail::number(user_id)});
   std::vector< core::DifficultyStats > result;
   result.reserve(ROWS.size());
   for (const auto &row : ROWS)
@@ -93,6 +93,5 @@ std::vector< quiz::core::DifficultyStats > quiz::db::PostgresStatisticsRepositor
     const size_t TOTAL = detail::readSize(row[GROUP_TOTAL_COLUMN]);
     result.push_back({DIFFICULTY, ATTEMPTS, CORRECT, TOTAL, detail::accuracy(CORRECT, TOTAL)});
   }
-  transaction.commit();
   return result;
 }

@@ -8,6 +8,12 @@
 #include "idatabase.hpp"
 #include "repository_support.hpp"
 
+namespace
+{
+  constexpr int SCHEMA_LOCK_NAMESPACE = 742021;
+  constexpr int SCHEMA_LOCK_KEY = 1;
+}
+
 quiz::db::SchemaInitializer::SchemaInitializer(std::shared_ptr< IDatabase > database): database_(std::move(database))
 {
   detail::requireDatabase(database_);
@@ -16,6 +22,7 @@ quiz::db::SchemaInitializer::SchemaInitializer(std::shared_ptr< IDatabase > data
 void quiz::db::SchemaInitializer::apply()
 {
   const std::vector< std::string > STATEMENTS = {
+    "CREATE EXTENSION IF NOT EXISTS pg_trgm",
     ("CREATE TABLE IF NOT EXISTS questions ("
      "id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY, "
      "category INTEGER NOT NULL CHECK (category BETWEEN 9 AND 32), "
@@ -57,6 +64,7 @@ void quiz::db::SchemaInitializer::apply()
      "UNIQUE(attempt_id,position))"),
 
     "CREATE INDEX IF NOT EXISTS questions_filter_idx ON questions(category,difficulty,id)",
+    "CREATE INDEX IF NOT EXISTS questions_text_trgm_idx ON questions USING GIN(text gin_trgm_ops)",
     "CREATE INDEX IF NOT EXISTS favorites_question_idx ON favorites(question_id)",
     "CREATE INDEX IF NOT EXISTS custom_tests_user_idx ON custom_tests(user_id,created_at DESC,id DESC)",
     "CREATE INDEX IF NOT EXISTS custom_test_questions_question_idx ON custom_test_questions(question_id)",
@@ -64,7 +72,8 @@ void quiz::db::SchemaInitializer::apply()
     "CREATE INDEX IF NOT EXISTS attempt_answers_question_idx ON attempt_answers(question_id)"};
 
   detail::Transaction transaction(database_);
-  transaction.connection().execute("SELECT pg_advisory_xact_lock(742021,1)::text", {});
+  transaction.connection().execute("SELECT pg_advisory_xact_lock($1::integer,$2::integer)::text",
+                                   {std::to_string(SCHEMA_LOCK_NAMESPACE), std::to_string(SCHEMA_LOCK_KEY)});
   for (const auto &statement : STATEMENTS)
   {
     transaction.connection().execute(statement, {});
