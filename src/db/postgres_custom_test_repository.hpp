@@ -24,7 +24,7 @@ namespace quiz
       void remove(size_t id) override;
 
     private:
-      void saveQuestions(size_t test_id, const std::vector< size_t > &question_ids);
+      static void saveQuestions(IConnection &connection, size_t test_id, const std::vector< size_t > &question_ids);
 
       std::shared_ptr< IDatabase > database_;
     };
