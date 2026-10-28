@@ -68,7 +68,7 @@ size_t quiz::service::QuizService::startQuiz(size_t user_id, const std::vector< 
                               .score = 0,
                               .total_questions = questions.size(),
                               .started_at = STARTED_AT,
-                              .finished_at = STARTED_AT,
+                              .finished_at = std::chrono::system_clock::time_point{},
                               .answers = {}};
   return attempt_repository_->save(ATTEMPT);
 }

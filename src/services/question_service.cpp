@@ -21,6 +21,8 @@ namespace
   constexpr size_t HASH_MAGIC = 0x9e3779b9;
   constexpr size_t HASH_LEFT_SHIFT = 6;
   constexpr size_t HASH_RIGHT_SHIFT = 2;
+  constexpr size_t MIN_AMOUNT = 1;
+  constexpr size_t MAX_AMOUNT = 50;
   constexpr size_t TYPED_FETCH_FACTOR = 4;
 
   size_t combineHash(size_t seed, size_t value)
@@ -85,6 +87,11 @@ std::vector< quiz::core::Question > quiz::service::QuestionService::fetchQuestio
                                                                                    core::Difficulty difficulty,
                                                                                    core::QuestionType type)
 {
+  if (amount < MIN_AMOUNT || amount > MAX_AMOUNT)
+  {
+    throw std::invalid_argument("Question amount must be between 1 and 50");
+  }
+
   const CacheKey KEY{.amount = amount, .category = category, .difficulty = difficulty, .type = type};
   std::optional< std::vector< core::Question > > cached = cache_.get(KEY);
   if (cached.has_value())
@@ -103,7 +110,7 @@ std::vector< quiz::core::Question > quiz::service::QuestionService::fetchQuestio
     questions = fetchFromDb(KEY);
     if (questions.empty())
     {
-      throw;
+      throw std::runtime_error("Open Trivia DB is unavailable and no matching questions are stored locally");
     }
     return questions;
   }

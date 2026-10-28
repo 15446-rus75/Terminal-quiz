@@ -20,10 +20,7 @@ quiz::service::FavoriteService::FavoriteService(std::shared_ptr< db::IFavoriteRe
 
 void quiz::service::FavoriteService::add(size_t user_id, size_t question_id)
 {
-  if (!favorite_repository_->exists(user_id, question_id))
-  {
-    favorite_repository_->add(user_id, question_id);
-  }
+  favorite_repository_->add(user_id, question_id);
 }
 
 void quiz::service::FavoriteService::remove(size_t user_id, size_t question_id)
