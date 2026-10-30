@@ -1,3 +1,5 @@
+#define BOOST_TEST_MODULE services_tests
+
 #include <algorithm>
 #include <chrono>
 #include <cstddef>
