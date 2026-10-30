@@ -22,7 +22,7 @@ namespace
   class MockOpenTdbClient: public api::IOpenTdbClient
   {
   public:
-    std::vector< core::Question > fetchQuestions(const api::OpenTdbRequest &req) override
+    std::vector< core::Question > fetchQuestions(const api::OpenTdbRequest & /*req*/) override
     {
       if (should_throw)
       {
@@ -113,8 +113,8 @@ BOOST_AUTO_TEST_CASE(null_dependencies_throw)
   auto client = std::make_shared< MockOpenTdbClient >();
   auto repo = std::make_shared< MockQuestionRepository >();
 
-  BOOST_CHECK_THROW(service::QuestionService(nullptr, repo), std::invalid_argument);
-  BOOST_CHECK_THROW(service::QuestionService(client, nullptr), std::invalid_argument);
+  BOOST_CHECK_THROW(service::QuestionService(nullptr, repo, 100), std::invalid_argument);
+  BOOST_CHECK_THROW(service::QuestionService(client, nullptr, 100), std::invalid_argument);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
@@ -125,7 +125,7 @@ BOOST_AUTO_TEST_CASE(invalid_amount_throws)
 {
   auto client = std::make_shared< MockOpenTdbClient >();
   auto repo = std::make_shared< MockQuestionRepository >();
-  service::QuestionService service(client, repo);
+  service::QuestionService service(client, repo, 100);
 
   BOOST_CHECK_THROW(service.fetchQuestions(0, core::Category::ANY, core::Difficulty::ANY, core::QuestionType::ANY),
                     std::invalid_argument);
@@ -139,7 +139,7 @@ BOOST_AUTO_TEST_CASE(fetch_from_api_and_cache)
   auto repo = std::make_shared< MockQuestionRepository >();
   client->api_questions = {makeQuestion(0)};
 
-  service::QuestionService service(client, repo);
+  service::QuestionService service(client, repo, 100);
 
   const auto RESULT1 = service.fetchQuestions(1, core::Category::ANY, core::Difficulty::ANY, core::QuestionType::ANY);
   BOOST_TEST(RESULT1.size() == 1U);
@@ -158,7 +158,7 @@ BOOST_AUTO_TEST_CASE(fallback_to_db_when_api_fails)
   client->should_throw = true;
   repo->db_questions = {makeQuestion(10)};
 
-  service::QuestionService service(client, repo);
+  service::QuestionService service(client, repo, 100);
 
   const auto RESULT = service.fetchQuestions(1, core::Category::ANY, core::Difficulty::ANY, core::QuestionType::ANY);
   BOOST_TEST(RESULT.size() == 1U);
@@ -171,7 +171,7 @@ BOOST_AUTO_TEST_CASE(fallback_to_db_when_api_fails_and_db_empty_throws)
   auto repo = std::make_shared< MockQuestionRepository >();
   client->should_throw = true;
 
-  service::QuestionService service(client, repo);
+  service::QuestionService service(client, repo, 100);
 
   BOOST_CHECK_THROW(service.fetchQuestions(1, core::Category::ANY, core::Difficulty::ANY, core::QuestionType::ANY),
                     std::runtime_error);
@@ -183,7 +183,7 @@ BOOST_AUTO_TEST_CASE(fallback_to_db_when_api_returns_empty)
   auto repo = std::make_shared< MockQuestionRepository >();
   repo->db_questions = {makeQuestion(5)};
 
-  service::QuestionService service(client, repo);
+  service::QuestionService service(client, repo, 100);
 
   const auto RESULT = service.fetchQuestions(1, core::Category::ANY, core::Difficulty::ANY, core::QuestionType::ANY);
   BOOST_TEST(RESULT.size() == 1U);
@@ -197,7 +197,7 @@ BOOST_AUTO_TEST_CASE(persist_to_db_id_mismatch_throws)
   client->api_questions = {makeQuestion(0)};
   repo->fail_batch_save = true;
 
-  service::QuestionService service(client, repo);
+  service::QuestionService service(client, repo, 100);
 
   BOOST_CHECK_THROW(service.fetchQuestions(1, core::Category::ANY, core::Difficulty::ANY, core::QuestionType::ANY),
                     std::runtime_error);
@@ -212,7 +212,7 @@ BOOST_AUTO_TEST_CASE(search_by_text_zero_limit_returns_empty)
   auto client = std::make_shared< MockOpenTdbClient >();
   auto repo = std::make_shared< MockQuestionRepository >();
 
-  service::QuestionService service(client, repo);
+  service::QuestionService service(client, repo, 100);
   BOOST_TEST(service.searchByText("query", core::Category::ANY, core::Difficulty::ANY, 0).empty());
 }
 
@@ -222,7 +222,7 @@ BOOST_AUTO_TEST_CASE(search_by_text_and_find_by_id)
   auto repo = std::make_shared< MockQuestionRepository >();
   repo->db_questions = {makeQuestion(42)};
 
-  service::QuestionService service(client, repo);
+  service::QuestionService service(client, repo, 100);
 
   const auto SEARCH_RES = service.searchByText("query", core::Category::ANY, core::Difficulty::ANY, 5);
   BOOST_TEST(SEARCH_RES.size() == 1U);
