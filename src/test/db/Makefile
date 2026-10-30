@@ -7,8 +7,6 @@ TEST_BUILD_DIR ?= $(abspath ../../../build/test)
 PG_CONFIG      ?= pg_config
 TEST_ARGS      ?= --report_level=short --color_output=no
 
-# Standard compiler search paths work without configuration. Optional overrides
-# are supplied by the caller, never paths from a developer's machine.
 ifdef BOOST_ROOT
 BOOST_INCLUDES := -I$(BOOST_ROOT)/include
 BOOST_LDFLAGS  := -L$(BOOST_ROOT)/lib -Wl,-rpath,$(BOOST_ROOT)/lib

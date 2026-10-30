@@ -24,7 +24,6 @@ if [ -n "$pg_bin" ]; then
   export PATH
 fi
 
-# A private Unix socket and a fresh cluster prevent access to application data.
 task_cluster=$(mktemp -d /tmp/quiz-db-tests.XXXXXXXX)
 cleanup()
 {
@@ -50,8 +49,6 @@ initdb -D "$task_cluster/data" -A trust --locale=C -E UTF8 > "$task_cluster/init
   cat "$task_cluster/initdb.log" >&2
   exit 1
 }
-# Optional initdb options such as sharedir belong to the installed tool wrapper,
-# not to this portable test suite.
 pg_ctl -D "$task_cluster/data" -l "$task_cluster/server.log" \
   -o "-h '' -k $task_cluster/socket -p 5432 -F" -w start
 QUIZ_TEST_ISOLATED=1
