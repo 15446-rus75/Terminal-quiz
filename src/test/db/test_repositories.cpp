@@ -33,6 +33,7 @@ BOOST_AUTO_TEST_CASE(schema_is_idempotent_and_has_trigram_index)
   BOOST_REQUIRE_EQUAL(INDEX.size(), 1);
   BOOST_CHECK(INDEX[0][0].find("gin_trgm_ops") != std::string::npos);
 }
+
 BOOST_AUTO_TEST_CASE(empty_repositories_return_empty_results)
 {
   BOOST_CHECK_EQUAL(questions.count(), 0);
@@ -43,6 +44,7 @@ BOOST_AUTO_TEST_CASE(empty_repositories_return_empty_results)
   BOOST_CHECK(attempts.findByUserId(USER, 10).empty());
   BOOST_CHECK(tests.findByUserId(USER).empty());
 }
+
 BOOST_AUTO_TEST_CASE(question_round_trip_preserves_unicode_and_answer_order)
 {
   auto value = question("Русский вопрос O'Reilly \\ 100%_");
@@ -54,6 +56,7 @@ BOOST_AUTO_TEST_CASE(question_round_trip_preserves_unicode_and_answer_order)
   BOOST_CHECK_EQUAL(LOADED->id, ID);
   checkQuestion(*LOADED, value);
 }
+
 BOOST_AUTO_TEST_CASE(update_replaces_all_question_answers)
 {
   auto value = question();
@@ -71,6 +74,7 @@ BOOST_AUTO_TEST_CASE(update_replaces_all_question_answers)
   BOOST_CHECK(loaded->incorrect_answers.empty());
   BOOST_CHECK_EQUAL(questions.count(), 1);
 }
+
 BOOST_AUTO_TEST_CASE(nonexistent_question_update_is_not_insert)
 {
   auto value = question();
@@ -78,6 +82,7 @@ BOOST_AUTO_TEST_CASE(nonexistent_question_update_is_not_insert)
   BOOST_CHECK_THROW(questions.save(value), std::out_of_range);
   BOOST_CHECK_EQUAL(questions.count(), 0);
 }
+
 BOOST_AUTO_TEST_CASE(filters_limits_and_order_are_deterministic)
 {
   auto first = question("first");
@@ -96,6 +101,7 @@ BOOST_AUTO_TEST_CASE(filters_limits_and_order_are_deterministic)
   BOOST_REQUIRE_EQUAL(ONE.size(), 1);
   BOOST_CHECK_EQUAL(ONE.front().id, IDS.front());
 }
+
 BOOST_AUTO_TEST_CASE(search_uses_case_insensitive_literal_substrings)
 {
   questions.saveBatch({question("Alice's 100%_code\\ UTF-8 Ж"), question("100Xycode"), question("other")});
@@ -114,11 +120,33 @@ BOOST_AUTO_TEST_CASE(search_uses_case_insensitive_literal_substrings)
   BOOST_CHECK(questions.searchByText("Alice", core::Category::ANY, core::Difficulty::HARD, 10).empty());
   BOOST_CHECK_EQUAL(questions.count(), 3);
 }
+
 BOOST_AUTO_TEST_CASE(empty_batch_is_noop)
 {
   BOOST_CHECK(questions.saveBatch({}).empty());
   BOOST_CHECK_EQUAL(questions.count(), 0);
 }
+
+BOOST_AUTO_TEST_CASE(batch_accepts_questions_without_incorrect_answers)
+{
+  auto first = question("empty answers first");
+  auto second = question("empty answers second");
+  first.incorrect_answers.clear();
+  second.incorrect_answers.clear();
+  const auto IDS = questions.saveBatch({first, second});
+  BOOST_REQUIRE_EQUAL(IDS.size(), 2);
+  BOOST_CHECK_NE(IDS[0], IDS[1]);
+  const auto FIRST = questions.findById(IDS[0]);
+  const auto SECOND = questions.findById(IDS[1]);
+  BOOST_REQUIRE(FIRST.has_value());
+  BOOST_REQUIRE(SECOND.has_value());
+  BOOST_CHECK(FIRST->incorrect_answers.empty());
+  BOOST_CHECK(SECOND->incorrect_answers.empty());
+  checkQuestion(*FIRST, first);
+  checkQuestion(*SECOND, second);
+  BOOST_CHECK_EQUAL(questions.count(), 2);
+}
+
 BOOST_AUTO_TEST_CASE(large_batch_crosses_chunks_and_preserves_id_mapping)
 {
   std::vector< core::Question > values;
@@ -131,8 +159,6 @@ BOOST_AUTO_TEST_CASE(large_batch_crosses_chunks_and_preserves_id_mapping)
   const auto IDS = repository.saveBatch(values);
   BOOST_REQUIRE_EQUAL(IDS.size(), values.size());
   BOOST_CHECK_EQUAL(std::set< size_t >(IDS.begin(), IDS.end()).size(), IDS.size());
-  // Regression guard against one INSERT/answer query per input record, allowing
-  // different batch sizes and future implementations with fewer SQL calls.
   BOOST_CHECK_LT(counted->calls->queries, 30);
   BOOST_CHECK_EQUAL(counted->calls->begins, 1);
   BOOST_CHECK_EQUAL(counted->calls->commits, 1);
@@ -147,6 +173,7 @@ BOOST_AUTO_TEST_CASE(large_batch_crosses_chunks_and_preserves_id_mapping)
     }
   }
 }
+
 BOOST_AUTO_TEST_CASE(mixed_batch_updates_existing_ids_in_input_order)
 {
   auto existing = question("old");
@@ -163,6 +190,28 @@ BOOST_AUTO_TEST_CASE(mixed_batch_updates_existing_ids_in_input_order)
   BOOST_CHECK_EQUAL(LOADED->text, "last update");
   BOOST_CHECK_EQUAL(questions.count(), 3);
 }
+
+BOOST_AUTO_TEST_CASE(batch_updates_existing_question_in_first_position)
+{
+  auto existing = question("existing first");
+  existing.id = questions.save(existing);
+  existing.text = "updated first";
+  existing.incorrect_answers.clear();
+  const auto NEW = question("new second");
+  const auto IDS = questions.saveBatch({existing, NEW});
+  BOOST_REQUIRE_EQUAL(IDS.size(), 2);
+  BOOST_CHECK_EQUAL(IDS[0], existing.id);
+  BOOST_CHECK_NE(IDS[1], existing.id);
+  const auto FIRST = questions.findById(IDS[0]);
+  const auto SECOND = questions.findById(IDS[1]);
+  BOOST_REQUIRE(FIRST.has_value());
+  BOOST_REQUIRE(SECOND.has_value());
+  checkQuestion(*FIRST, existing);
+  checkQuestion(*SECOND, NEW);
+  BOOST_CHECK(FIRST->incorrect_answers.empty());
+  BOOST_CHECK_EQUAL(questions.count(), 2);
+}
+
 BOOST_AUTO_TEST_CASE(late_batch_failure_rolls_back_earlier_chunks_and_updates)
 {
   auto original = question("original");
@@ -178,6 +227,7 @@ BOOST_AUTO_TEST_CASE(late_batch_failure_rolls_back_earlier_chunks_and_updates)
   BOOST_REQUIRE(LOADED.has_value());
   checkQuestion(*LOADED, original);
 }
+
 BOOST_AUTO_TEST_CASE(child_insert_failure_rolls_back_single_question)
 {
   auto value = question();
@@ -185,6 +235,7 @@ BOOST_AUTO_TEST_CASE(child_insert_failure_rolls_back_single_question)
   BOOST_CHECK_THROW(questions.save(value), std::invalid_argument);
   BOOST_CHECK_EQUAL(questions.count(), 0);
 }
+
 BOOST_AUTO_TEST_CASE(invalid_enums_and_oversized_ids_are_rejected)
 {
   auto value = question();
@@ -197,6 +248,7 @@ BOOST_AUTO_TEST_CASE(invalid_enums_and_oversized_ids_are_rejected)
     BOOST_CHECK_THROW(questions.findById(std::numeric_limits< size_t >::max()), std::out_of_range);
   }
 }
+
 BOOST_AUTO_TEST_CASE(question_reads_batch_children_without_explicit_transaction)
 {
   questions.saveBatch(std::vector< core::Question >(20, question()));
@@ -208,6 +260,7 @@ BOOST_AUTO_TEST_CASE(question_reads_batch_children_without_explicit_transaction)
   BOOST_CHECK_EQUAL(counted->calls->begins, 0);
   BOOST_CHECK_EQUAL(counted->calls->commits, 0);
 }
+
 BOOST_AUTO_TEST_CASE(favorites_are_idempotent_and_isolated_by_user)
 {
   const auto IDS = questions.saveBatch({question("1"), question("2")});
@@ -226,6 +279,7 @@ BOOST_AUTO_TEST_CASE(favorites_are_idempotent_and_isolated_by_user)
   BOOST_CHECK(!favorites.exists(USER, IDS[0]));
   BOOST_CHECK(favorites.exists(OTHER_USER, IDS[0]));
 }
+
 BOOST_AUTO_TEST_CASE(favorites_reject_missing_question_and_cascade_on_delete)
 {
   BOOST_CHECK_THROW(favorites.add(USER, MISSING), std::runtime_error);
@@ -236,6 +290,7 @@ BOOST_AUTO_TEST_CASE(favorites_reject_missing_question_and_cascade_on_delete)
   BOOST_CHECK(favorites.findByUserId(USER).empty());
   deleteQuestion(ID);
 }
+
 BOOST_AUTO_TEST_CASE(custom_tests_preserve_repeated_questions_and_timestamp)
 {
   const auto IDS = questions.saveBatch({question("1"), question("2")});
@@ -248,6 +303,7 @@ BOOST_AUTO_TEST_CASE(custom_tests_preserve_repeated_questions_and_timestamp)
   BOOST_CHECK(LOADED->created_at == VALUE.created_at);
   BOOST_CHECK_EQUAL(LOADED->user_id, USER);
 }
+
 BOOST_AUTO_TEST_CASE(custom_test_update_replaces_links_and_remove_keeps_questions)
 {
   const size_t QID = questions.save(question());
@@ -264,18 +320,45 @@ BOOST_AUTO_TEST_CASE(custom_test_update_replaces_links_and_remove_keeps_question
   BOOST_CHECK(!tests.findById(value.id));
   BOOST_CHECK_EQUAL(questions.count(), 1);
 }
+
 BOOST_AUTO_TEST_CASE(custom_test_ordering_and_user_filter)
 {
-  auto first = customTest();
-  const size_t FIRST = tests.save(first);
-  const size_t SECOND = tests.save(first);
-  first.user_id = OTHER_USER;
-  tests.save(first);
+  const auto BASE_TIME = std::chrono::system_clock::time_point(std::chrono::seconds(1700000000));
+  auto newest = customTest();
+  newest.created_at = BASE_TIME + std::chrono::seconds(20);
+  auto oldest = customTest();
+  oldest.created_at = BASE_TIME;
+  auto middle = customTest();
+  middle.created_at = BASE_TIME + std::chrono::seconds(10);
+  const size_t NEWEST = tests.save(newest);
+  const size_t OLDEST = tests.save(oldest);
+  const size_t MIDDLE = tests.save(middle);
+  auto other = customTest();
+  other.user_id = OTHER_USER;
+  other.created_at = BASE_TIME + std::chrono::seconds(30);
+  tests.save(other);
+  const auto VALUES = tests.findByUserId(USER);
+  BOOST_REQUIRE_EQUAL(VALUES.size(), 3);
+  BOOST_CHECK_EQUAL(VALUES[0].id, NEWEST);
+  BOOST_CHECK_EQUAL(VALUES[1].id, MIDDLE);
+  BOOST_CHECK_EQUAL(VALUES[2].id, OLDEST);
+  BOOST_CHECK(VALUES[0].created_at == newest.created_at);
+  BOOST_CHECK(VALUES[1].created_at == middle.created_at);
+  BOOST_CHECK(VALUES[2].created_at == oldest.created_at);
+}
+
+BOOST_AUTO_TEST_CASE(custom_test_equal_timestamps_use_id_as_tiebreaker)
+{
+  auto value = customTest();
+  value.created_at = std::chrono::system_clock::time_point(std::chrono::seconds(1700000000));
+  const size_t FIRST = tests.save(value);
+  const size_t SECOND = tests.save(value);
   const auto VALUES = tests.findByUserId(USER);
   BOOST_REQUIRE_EQUAL(VALUES.size(), 2);
   BOOST_CHECK_EQUAL(VALUES[0].id, SECOND);
   BOOST_CHECK_EQUAL(VALUES[1].id, FIRST);
 }
+
 BOOST_AUTO_TEST_CASE(custom_test_bad_foreign_key_rolls_back_update)
 {
   const size_t QID = questions.save(question());
@@ -291,6 +374,7 @@ BOOST_AUTO_TEST_CASE(custom_test_bad_foreign_key_rolls_back_update)
   value.id = MISSING;
   BOOST_CHECK_THROW(tests.save(value), std::out_of_range);
 }
+
 BOOST_AUTO_TEST_CASE(question_delete_is_restricted_by_custom_test)
 {
   const size_t QID = questions.save(question());
@@ -300,6 +384,7 @@ BOOST_AUTO_TEST_CASE(question_delete_is_restricted_by_custom_test)
   tests.remove(TID);
   BOOST_CHECK_NO_THROW(deleteQuestion(QID));
 }
+
 BOOST_AUTO_TEST_CASE(custom_test_reads_batch_links)
 {
   const size_t QID = questions.save(question());
@@ -318,6 +403,7 @@ BOOST_AUTO_TEST_CASE(custom_test_reads_batch_links)
   BOOST_CHECK_LE(counted->calls->queries, 2);
   BOOST_CHECK_EQUAL(counted->calls->begins, 0);
 }
+
 BOOST_AUTO_TEST_CASE(attempt_round_trip_preserves_microseconds_and_answer_positions)
 {
   const size_t QID = questions.save(question());
@@ -336,20 +422,24 @@ BOOST_AUTO_TEST_CASE(attempt_round_trip_preserves_microseconds_and_answer_positi
   BOOST_CHECK_GT(LOADED->answers[0].id, 0);
   BOOST_CHECK_EQUAL(LOADED->answers[0].user_answer, value.answers[1].user_answer);
 }
+
 BOOST_AUTO_TEST_CASE(unfinished_attempt_can_be_finished)
 {
   auto value = attempt(USER, 0, 2, false);
   const size_t ID = attempts.save(value);
   auto loaded = attempts.findById(ID);
   BOOST_REQUIRE(loaded.has_value());
+  BOOST_CHECK(loaded->answers.empty());
   BOOST_CHECK(loaded->finished_at == value.finished_at);
   const auto FINISH = value.started_at + std::chrono::microseconds(1234567);
   attempts.finish(ID, 2, FINISH);
   loaded = attempts.findById(ID);
   BOOST_REQUIRE(loaded.has_value());
+  BOOST_CHECK(loaded->answers.empty());
   BOOST_CHECK_EQUAL(loaded->score, 2);
   BOOST_CHECK(loaded->finished_at == FINISH);
 }
+
 BOOST_AUTO_TEST_CASE(invalid_finish_does_not_change_attempt)
 {
   const auto VALUE = attempt(USER, 0, 2, false);
@@ -362,6 +452,7 @@ BOOST_AUTO_TEST_CASE(invalid_finish_does_not_change_attempt)
   BOOST_REQUIRE(LOADED.has_value());
   BOOST_CHECK_EQUAL(LOADED->score, 0);
 }
+
 BOOST_AUTO_TEST_CASE(attempt_update_preserves_id_and_replaces_answers)
 {
   const size_t QID = questions.save(question());
@@ -378,6 +469,7 @@ BOOST_AUTO_TEST_CASE(attempt_update_preserves_id_and_replaces_answers)
   value.answers.clear();
   BOOST_CHECK_THROW(attempts.save(value), std::out_of_range);
 }
+
 BOOST_AUTO_TEST_CASE(save_answers_replaces_and_clears_existing_answers)
 {
   const size_t QID = questions.save(question());
@@ -395,6 +487,7 @@ BOOST_AUTO_TEST_CASE(save_answers_replaces_and_clears_existing_answers)
   BOOST_CHECK(loaded->answers.empty());
   BOOST_CHECK_THROW(attempts.saveAnswers(MISSING, {}), std::out_of_range);
 }
+
 BOOST_AUTO_TEST_CASE(bad_answer_replacement_rolls_back_delete_and_partial_insert)
 {
   const size_t QID = questions.save(question());
@@ -410,6 +503,7 @@ BOOST_AUTO_TEST_CASE(bad_answer_replacement_rolls_back_delete_and_partial_insert
   BOOST_REQUIRE_EQUAL(LOADED->answers.size(), 1);
   BOOST_CHECK_EQUAL(LOADED->answers[0].user_answer, "original");
 }
+
 BOOST_AUTO_TEST_CASE(failed_attempt_insert_is_atomic)
 {
   auto value = attempt();
@@ -419,6 +513,7 @@ BOOST_AUTO_TEST_CASE(failed_attempt_insert_is_atomic)
   value = attempt(USER, 3, 2);
   BOOST_CHECK_THROW(attempts.save(value), std::runtime_error);
 }
+
 BOOST_AUTO_TEST_CASE(attempt_history_is_ordered_filtered_and_limited)
 {
   auto value = attempt();
@@ -435,6 +530,7 @@ BOOST_AUTO_TEST_CASE(attempt_history_is_ordered_filtered_and_limited)
   BOOST_CHECK_NE(FIRST, SECOND);
   BOOST_CHECK(attempts.findByUserId(USER, 0).empty());
 }
+
 BOOST_AUTO_TEST_CASE(attempt_reads_batch_answers)
 {
   const size_t QID = questions.save(question());
@@ -456,6 +552,7 @@ BOOST_AUTO_TEST_CASE(attempt_reads_batch_answers)
   BOOST_CHECK_EQUAL(counted->calls->begins, 0);
   BOOST_CHECK_EQUAL(counted->calls->commits, 0);
 }
+
 BOOST_AUTO_TEST_CASE(question_delete_is_restricted_by_attempt_history)
 {
   const size_t QID = questions.save(question());
@@ -465,6 +562,7 @@ BOOST_AUTO_TEST_CASE(question_delete_is_restricted_by_attempt_history)
   BOOST_CHECK_THROW(deleteQuestion(QID), std::runtime_error);
   BOOST_CHECK(questions.findById(QID).has_value());
 }
+
 BOOST_AUTO_TEST_CASE(empty_statistics_are_zero)
 {
   const auto VALUE = statistics.getOverall(USER);
@@ -475,6 +573,7 @@ BOOST_AUTO_TEST_CASE(empty_statistics_are_zero)
   BOOST_CHECK(statistics.getByCategory(USER).empty());
   BOOST_CHECK(statistics.getByDifficulty(USER).empty());
 }
+
 BOOST_AUTO_TEST_CASE(overall_statistics_are_weighted_and_exclude_unfinished_and_other_users)
 {
   attempts.save(attempt(USER, 1, 1));
@@ -487,6 +586,7 @@ BOOST_AUTO_TEST_CASE(overall_statistics_are_weighted_and_exclude_unfinished_and_
   BOOST_CHECK_EQUAL(VALUE.total_correct, 2);
   BOOST_CHECK_CLOSE(VALUE.overall_accuracy, 50.0, 1e-8);
 }
+
 BOOST_AUTO_TEST_CASE(grouped_statistics_count_attempts_once_per_group)
 {
   auto music = question("music");
@@ -512,6 +612,7 @@ BOOST_AUTO_TEST_CASE(grouped_statistics_count_attempts_once_per_group)
   BOOST_CHECK(DIFFICULTIES[0].difficulty == core::Difficulty::EASY);
   BOOST_CHECK_CLOSE(DIFFICULTIES[1].accuracy, 100.0, 1e-8);
 }
+
 BOOST_AUTO_TEST_CASE(zero_question_finished_attempt_has_zero_accuracy)
 {
   attempts.save(attempt(USER, 0, 0));
@@ -519,4 +620,5 @@ BOOST_AUTO_TEST_CASE(zero_question_finished_attempt_has_zero_accuracy)
   BOOST_CHECK_EQUAL(VALUE.total_attempts, 1);
   BOOST_CHECK_SMALL(VALUE.overall_accuracy, 1e-10);
 }
+
 BOOST_AUTO_TEST_SUITE_END()

@@ -23,6 +23,7 @@ BOOST_AUTO_TEST_CASE(parameter_round_trip_is_not_sql_interpolation)
   BOOST_CHECK(connection->execute("SELECT $1::text, $2::text", {TEXT, ""}) == (db::ResultSet{{TEXT, ""}}));
   BOOST_CHECK(connection->execute("SELECT 1 WHERE FALSE", {}).empty());
 }
+
 BOOST_AUTO_TEST_CASE(null_bytes_and_unrepresentable_sql_null_are_errors)
 {
   auto source = database();
@@ -32,6 +33,7 @@ BOOST_AUTO_TEST_CASE(null_bytes_and_unrepresentable_sql_null_are_errors)
   BOOST_CHECK_THROW(connection->execute("SELECT NULL::text", {}), std::runtime_error);
   BOOST_CHECK(connection->execute("SELECT 2", {}) == (db::ResultSet{{"2"}}));
 }
+
 BOOST_AUTO_TEST_CASE(query_failure_does_not_poison_autocommit_connection)
 {
   auto source = database();
@@ -40,11 +42,13 @@ BOOST_AUTO_TEST_CASE(query_failure_does_not_poison_autocommit_connection)
   BOOST_CHECK_THROW(connection->execute("SELECT missing syntax", {"bad"}), std::runtime_error);
   BOOST_CHECK(connection->execute("SELECT $1::integer", {"8"}) == (db::ResultSet{{"8"}}));
 }
+
 BOOST_AUTO_TEST_CASE(explicit_commit_and_rollback_control_visibility)
 {
   auto source = database();
   auto writer = source->getConnection();
   auto reader = source->getConnection();
+  writer->execute("DROP TABLE IF EXISTS transaction_visibility", {});
   writer->execute("CREATE TABLE transaction_visibility(value integer)", {});
   writer->beginTransaction();
   writer->execute("INSERT INTO transaction_visibility VALUES(1)", {});
@@ -58,6 +62,7 @@ BOOST_AUTO_TEST_CASE(explicit_commit_and_rollback_control_visibility)
   BOOST_CHECK_EQUAL(reader->execute("SELECT value FROM transaction_visibility", {}).at(0).at(0), "2");
   writer->execute("DROP TABLE transaction_visibility", {});
 }
+
 BOOST_AUTO_TEST_CASE(transaction_lifecycle_errors_are_explicit)
 {
   auto source = database();
@@ -70,21 +75,28 @@ BOOST_AUTO_TEST_CASE(transaction_lifecycle_errors_are_explicit)
   connection->rollback();
   BOOST_CHECK_EQUAL(connection->execute("SELECT 3", {}).at(0).at(0), "3");
 }
+
 BOOST_AUTO_TEST_CASE(connection_parameters_cannot_inject_database_option)
 {
   const char *socket = std::getenv("QUIZ_TEST_SOCKET");
   const char *user = std::getenv("QUIZ_TEST_USER");
-  auto valid = database();
+  const char *isolated = std::getenv("QUIZ_TEST_ISOLATED");
+  BOOST_REQUIRE(socket != nullptr);
+  BOOST_REQUIRE(user != nullptr);
+  BOOST_REQUIRE(isolated != nullptr);
+  BOOST_REQUIRE(*socket != '\0');
+  BOOST_REQUIRE(*user != '\0');
+  BOOST_REQUIRE_EQUAL(std::string(isolated), "1");
   db::PostgresDatabase quoted(socket, 5432, "postgres", user, "' dbname=missing_database \\");
   BOOST_CHECK(quoted.getConnection()->isConnected());
   db::PostgresDatabase missing(socket, 5432, "missing_database", user, "");
   BOOST_CHECK_THROW(missing.getConnection(), std::runtime_error);
-  // Failure must release the reserved slot, rather than exhausting the pool.
   for (size_t index = 0; index < 5; ++index)
   {
     BOOST_CHECK_THROW(missing.getConnection(), std::runtime_error);
   }
 }
+
 BOOST_AUTO_TEST_CASE(returned_connection_reuses_backend_after_last_alias)
 {
   auto source = database();
@@ -98,6 +110,7 @@ BOOST_AUTO_TEST_CASE(returned_connection_reuses_backend_after_last_alias)
   auto third = source->getConnection();
   BOOST_CHECK_EQUAL(third->execute("SELECT pg_backend_pid()", {}).at(0).at(0), PID);
 }
+
 BOOST_AUTO_TEST_CASE(pool_has_four_distinct_leases_and_times_out_when_exhausted, *boost::unit_test::timeout(20))
 {
   auto source = database();
@@ -113,6 +126,7 @@ BOOST_AUTO_TEST_CASE(pool_has_four_distinct_leases_and_times_out_when_exhausted,
   held.pop_back();
   BOOST_CHECK(source->getConnection()->isConnected());
 }
+
 BOOST_AUTO_TEST_CASE(waiting_borrower_resumes_after_release, *boost::unit_test::timeout(20))
 {
   auto source = database();
@@ -134,6 +148,7 @@ BOOST_AUTO_TEST_CASE(waiting_borrower_resumes_after_release, *boost::unit_test::
   BOOST_CHECK(BEFORE == std::future_status::timeout);
   BOOST_CHECK(waiter.get()->isConnected());
 }
+
 BOOST_AUTO_TEST_CASE(concurrent_operations_use_separate_connections, *boost::unit_test::timeout(20))
 {
   auto source = database();
@@ -152,6 +167,7 @@ BOOST_AUTO_TEST_CASE(concurrent_operations_use_separate_connections, *boost::uni
     BOOST_CHECK_EQUAL(workers[index].get(), std::to_string(index));
   }
 }
+
 BOOST_AUTO_TEST_CASE(pool_rolls_back_abandoned_and_failed_transactions)
 {
   auto source = database();
@@ -170,6 +186,7 @@ BOOST_AUTO_TEST_CASE(pool_rolls_back_abandoned_and_failed_transactions)
   connection = source->getConnection();
   BOOST_CHECK_EQUAL(connection->execute("SELECT 7", {}).at(0).at(0), "7");
 }
+
 BOOST_AUTO_TEST_CASE(broken_backend_is_replaced)
 {
   auto source = database();
@@ -182,6 +199,7 @@ BOOST_AUTO_TEST_CASE(broken_backend_is_replaced)
   auto replacement = source->getConnection();
   BOOST_CHECK_NE(replacement->execute("SELECT pg_backend_pid()", {}).at(0).at(0), PID);
 }
+
 BOOST_AUTO_TEST_CASE(lease_can_outlive_database_owner)
 {
   auto source = database();
@@ -190,6 +208,7 @@ BOOST_AUTO_TEST_CASE(lease_can_outlive_database_owner)
   BOOST_CHECK_EQUAL(lease->execute("SELECT 9", {}).at(0).at(0), "9");
   lease.reset();
 }
+
 BOOST_AUTO_TEST_CASE(prepared_statement_is_reused_with_new_parameters_and_after_pool_return)
 {
   auto source = database();
@@ -204,6 +223,7 @@ BOOST_AUTO_TEST_CASE(prepared_statement_is_reused_with_new_parameters_and_after_
   BOOST_CHECK_EQUAL(connection->execute("SELECT $1::text AS reused", {"fourth"}).at(0).at(0), "fourth");
   BOOST_CHECK_EQUAL(connection->execute("SELECT COUNT(*) FROM pg_prepared_statements", {}).at(0).at(0), "1");
 }
+
 BOOST_AUTO_TEST_CASE(prepared_cache_is_bounded_and_fallback_still_binds_parameters)
 {
   auto source = database();
@@ -217,4 +237,5 @@ BOOST_AUTO_TEST_CASE(prepared_cache_is_bounded_and_fallback_still_binds_paramete
   const auto PAYLOAD = "' ; DROP TABLE questions;--";
   BOOST_CHECK_EQUAL(connection->execute("SELECT $1::text AS fallback", {PAYLOAD}).at(0).at(0), PAYLOAD);
 }
+
 BOOST_AUTO_TEST_SUITE_END()

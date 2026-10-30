@@ -1,6 +1,7 @@
 #include "test_support.hpp"
 
 #include <cstdlib>
+#include <mutex>
 #include <stdexcept>
 #include <utility>
 
@@ -103,12 +104,12 @@ void dbtest::checkQuestion(const quiz::core::Question &actual, const quiz::core:
 
 dbtest::Fixture::Fixture(): db(database()), questions(db), favorites(db), tests(db), attempts(db), statistics(db)
 {
-  static bool initialized = false;
-  if (!initialized)
-  {
-    quiz::db::SchemaInitializer(db).apply();
-    initialized = true;
-  }
+  static std::once_flag initialized;
+  std::call_once(initialized,
+                 [this]()
+                 {
+                   quiz::db::SchemaInitializer(db).apply();
+                 });
   db->getConnection()->execute("TRUNCATE attempt_answers, attempts, custom_test_questions, custom_tests, "
                                "favorites, question_incorrect_answers, questions RESTART IDENTITY",
                                {});

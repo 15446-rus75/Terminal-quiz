@@ -89,6 +89,7 @@ BOOST_AUTO_TEST_CASE(null_dependencies_are_rejected)
   BOOST_CHECK_THROW(db::SchemaInitializer(nullptr), std::invalid_argument);
   BOOST_CHECK_THROW(db::detail::getConnection(nullptr), std::invalid_argument);
 }
+
 BOOST_AUTO_TEST_CASE(unavailable_connections_are_rejected)
 {
   auto database = std::make_shared< FakeDatabase >();
@@ -97,6 +98,7 @@ BOOST_AUTO_TEST_CASE(unavailable_connections_are_rejected)
   database->connection.reset();
   BOOST_CHECK_THROW(db::detail::getConnection(database), std::runtime_error);
 }
+
 BOOST_AUTO_TEST_CASE(port_and_connection_parameters_are_validated_without_network)
 {
   BOOST_CHECK_THROW(db::PostgresDatabase("localhost", 0, "x", "x", ""), std::invalid_argument);
@@ -107,6 +109,7 @@ BOOST_AUTO_TEST_CASE(port_and_connection_parameters_are_validated_without_networ
   BOOST_CHECK_THROW(db::PostgresDatabase("localhost", 5432, "x", BAD, ""), std::invalid_argument);
   BOOST_CHECK_THROW(db::PostgresDatabase("localhost", 5432, "x", "x", BAD), std::invalid_argument);
 }
+
 BOOST_AUTO_TEST_CASE(integer_results_reject_negative_overflow_and_malformed_text)
 {
   BOOST_CHECK_EQUAL(db::detail::readSize("0"), 0);
@@ -119,6 +122,7 @@ BOOST_AUTO_TEST_CASE(integer_results_reject_negative_overflow_and_malformed_text
     }
   }
 }
+
 BOOST_AUTO_TEST_CASE(bigint_parameters_reject_out_of_range_values)
 {
   BOOST_CHECK_EQUAL(db::detail::number(0), "0");
@@ -128,6 +132,7 @@ BOOST_AUTO_TEST_CASE(bigint_parameters_reject_out_of_range_values)
     BOOST_CHECK_THROW(db::detail::number(std::numeric_limits< size_t >::max()), std::out_of_range);
   }
 }
+
 BOOST_AUTO_TEST_CASE(microsecond_times_round_trip_before_and_after_epoch)
 {
   for (const long long VALUE : {0LL, 1234567LL, -1234567LL, 1700000000123456LL})
@@ -138,6 +143,7 @@ BOOST_AUTO_TEST_CASE(microsecond_times_round_trip_before_and_after_epoch)
   BOOST_CHECK_THROW(db::detail::readTime("not a time"), std::runtime_error);
   BOOST_CHECK_THROW(db::detail::readTime("9223372036854775808"), std::runtime_error);
 }
+
 BOOST_AUTO_TEST_CASE(search_patterns_escape_only_sql_wildcards)
 {
   BOOST_CHECK_EQUAL(db::detail::literalSearchPattern("100%_a\\b'"), "%100\\%\\_a\\\\b'%");
@@ -145,12 +151,14 @@ BOOST_AUTO_TEST_CASE(search_patterns_escape_only_sql_wildcards)
   BOOST_CHECK_EQUAL(db::detail::idArray({}), "{}");
   BOOST_CHECK_EQUAL(db::detail::idArray({2, 9}), "{2,9}");
 }
+
 BOOST_AUTO_TEST_CASE(accuracy_has_percent_units_and_handles_zero_denominator)
 {
   BOOST_CHECK_SMALL(db::detail::accuracy(0, 0), 1e-10);
   BOOST_CHECK_CLOSE(db::detail::accuracy(1, 4), 25.0, 1e-8);
   BOOST_CHECK_CLOSE(db::detail::accuracy(2, 3), 200.0 / 3.0, 1e-8);
 }
+
 BOOST_AUTO_TEST_CASE(stored_questions_require_concrete_enums)
 {
   auto value = dbtest::question();
@@ -167,6 +175,7 @@ BOOST_AUTO_TEST_CASE(stored_questions_require_concrete_enums)
   BOOST_CHECK_THROW(db::detail::validateFilter(static_cast< core::Category >(999), core::Difficulty::ANY),
                     std::exception);
 }
+
 BOOST_AUTO_TEST_CASE(transaction_commits_once_without_rollback)
 {
   auto database = std::make_shared< FakeDatabase >();
@@ -178,6 +187,7 @@ BOOST_AUTO_TEST_CASE(transaction_commits_once_without_rollback)
   BOOST_CHECK_EQUAL(database->connection->commits, 1);
   BOOST_CHECK_EQUAL(database->connection->rollbacks, 0);
 }
+
 BOOST_AUTO_TEST_CASE(uncommitted_transaction_rolls_back_on_scope_exit)
 {
   auto database = std::make_shared< FakeDatabase >();
@@ -186,6 +196,7 @@ BOOST_AUTO_TEST_CASE(uncommitted_transaction_rolls_back_on_scope_exit)
   }
   BOOST_CHECK_EQUAL(database->connection->rollbacks, 1);
 }
+
 BOOST_AUTO_TEST_CASE(failed_commit_is_rolled_back)
 {
   auto database = std::make_shared< FakeDatabase >();
@@ -196,6 +207,7 @@ BOOST_AUTO_TEST_CASE(failed_commit_is_rolled_back)
   }
   BOOST_CHECK_EQUAL(database->connection->rollbacks, 1);
 }
+
 BOOST_AUTO_TEST_CASE(failed_begin_does_not_rollback_unstarted_transaction)
 {
   auto database = std::make_shared< FakeDatabase >();
@@ -203,6 +215,7 @@ BOOST_AUTO_TEST_CASE(failed_begin_does_not_rollback_unstarted_transaction)
   BOOST_CHECK_THROW(db::detail::Transaction transaction(database), std::runtime_error);
   BOOST_CHECK_EQUAL(database->connection->rollbacks, 0);
 }
+
 BOOST_AUTO_TEST_CASE(rollback_failure_does_not_escape_destructor)
 {
   auto database = std::make_shared< FakeDatabase >();
@@ -210,6 +223,7 @@ BOOST_AUTO_TEST_CASE(rollback_failure_does_not_escape_destructor)
   BOOST_CHECK_NO_THROW({ db::detail::Transaction transaction(database); });
   BOOST_CHECK_EQUAL(database->connection->rollbacks, 1);
 }
+
 BOOST_AUTO_TEST_CASE(empty_parent_results_do_not_query_children)
 {
   FakeConnection connection;
@@ -217,6 +231,7 @@ BOOST_AUTO_TEST_CASE(empty_parent_results_do_not_query_children)
   BOOST_CHECK(db::detail::readAttempts(connection, {}).empty());
   BOOST_CHECK_EQUAL(connection.queries, 0);
 }
+
 BOOST_AUTO_TEST_CASE(question_mapping_preserves_parent_order_and_batches_children)
 {
   FakeConnection connection;
@@ -231,6 +246,22 @@ BOOST_AUTO_TEST_CASE(question_mapping_preserves_parent_order_and_batches_childre
   BOOST_CHECK_EQUAL(VALUES[1].incorrect_answers[1], "b");
   BOOST_CHECK_EQUAL(connection.queries, 1);
 }
+
+BOOST_AUTO_TEST_CASE(question_mapping_accepts_empty_incorrect_answers)
+{
+  FakeConnection connection;
+  connection.results.push_back({});
+  const auto VALUES =
+    db::detail::readQuestions(connection, {{"2", "18", "1", "1", "two", "yes"}, {"1", "18", "1", "1", "one", "yes"}});
+  BOOST_REQUIRE_EQUAL(VALUES.size(), 2);
+  BOOST_CHECK_EQUAL(VALUES[0].id, 2);
+  BOOST_CHECK_EQUAL(VALUES[1].id, 1);
+  BOOST_CHECK(VALUES[0].incorrect_answers.empty());
+  BOOST_CHECK(VALUES[1].incorrect_answers.empty());
+  BOOST_CHECK_EQUAL(connection.queries, 1);
+  BOOST_CHECK(connection.results.empty());
+}
+
 BOOST_AUTO_TEST_CASE(malformed_question_rows_and_duplicates_are_rejected)
 {
   FakeConnection connection;
@@ -242,6 +273,7 @@ BOOST_AUTO_TEST_CASE(malformed_question_rows_and_duplicates_are_rejected)
   connection.results.push_back({{"999", "orphan"}});
   BOOST_CHECK_THROW(db::detail::readQuestions(connection, {ROW}), std::out_of_range);
 }
+
 BOOST_AUTO_TEST_CASE(attempt_mapping_checks_boolean_and_column_count)
 {
   FakeConnection connection;
@@ -257,6 +289,7 @@ BOOST_AUTO_TEST_CASE(attempt_mapping_checks_boolean_and_column_count)
   BOOST_CHECK_THROW(db::detail::readAttempts(connection, PARENTS), std::runtime_error);
   BOOST_CHECK_THROW(db::detail::readAttempts(connection, {{"1"}}), std::runtime_error);
 }
+
 BOOST_AUTO_TEST_CASE(statistics_reject_invalid_aggregate_results)
 {
   auto database = std::make_shared< FakeDatabase >();
@@ -270,4 +303,5 @@ BOOST_AUTO_TEST_CASE(statistics_reject_invalid_aggregate_results)
   database->connection->results.push_back({{"999", "1", "1", "1"}});
   BOOST_CHECK_THROW(repository.getByCategory(42), std::exception);
 }
+
 BOOST_AUTO_TEST_SUITE_END()
