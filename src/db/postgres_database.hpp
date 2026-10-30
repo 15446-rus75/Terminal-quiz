@@ -20,7 +20,8 @@ namespace quiz
       std::shared_ptr< IConnection > getConnection() override;
 
     private:
-      std::string connection_string_;
+      class PoolState;
+      std::shared_ptr< PoolState > pool_;
     };
   }
 }
