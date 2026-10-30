@@ -24,15 +24,17 @@ namespace
 
     void remove(size_t user_id, size_t question_id) override
     {
-      std::erase_if(favorites, [user_id, question_id](const auto &pair) {
-        return pair.first == user_id && pair.second == question_id;
-      });
+      std::erase_if(favorites,
+                    [user_id, question_id](const auto &pair)
+                    {
+                      return pair.first == user_id && pair.second == question_id;
+                    });
     }
 
     std::vector< core::Question > findByUserId(size_t user_id) override
     {
       std::vector< core::Question > result;
-      for (const auto &pair: favorites)
+      for (const auto &pair : favorites)
       {
         if (pair.first == user_id)
         {
@@ -46,7 +48,7 @@ namespace
 
     bool exists(size_t user_id, size_t question_id) override
     {
-      for (const auto &pair: favorites)
+      for (const auto &pair : favorites)
       {
         if (pair.first == user_id && pair.second == question_id)
         {

@@ -33,7 +33,7 @@ namespace
 
     std::optional< core::CustomTest > findById(size_t id) override
     {
-      for (const auto &test: tests)
+      for (const auto &test : tests)
       {
         if (test.id == id)
         {
@@ -46,7 +46,7 @@ namespace
     std::vector< core::CustomTest > findByUserId(size_t user_id) override
     {
       std::vector< core::CustomTest > result;
-      for (const auto &test: tests)
+      for (const auto &test : tests)
       {
         if (test.user_id == user_id)
         {
@@ -58,7 +58,11 @@ namespace
 
     void remove(size_t id) override
     {
-      std::erase_if(tests, [id](const core::CustomTest &t) { return t.id == id; });
+      std::erase_if(tests,
+                    [id](const core::CustomTest &t)
+                    {
+                      return t.id == id;
+                    });
     }
 
     size_t next_id = 0;
@@ -81,7 +85,7 @@ namespace
 
     std::optional< core::Question > findById(size_t id) override
     {
-      for (const auto &q: questions)
+      for (const auto &q : questions)
       {
         if (q.id == id)
         {
@@ -99,6 +103,11 @@ namespace
     std::vector< core::Question > searchByText(const std::string &, core::Category, core::Difficulty, size_t) override
     {
       return {};
+    }
+
+    size_t count() override
+    {
+      return questions.size();
     }
 
     std::vector< core::Question > questions;

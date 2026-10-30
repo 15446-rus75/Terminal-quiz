@@ -103,10 +103,8 @@ BOOST_AUTO_TEST_CASE(start_submit_finish_quiz_flow)
   const size_t ATTEMPT_ID = service.startQuiz(100, QUESTIONS);
   BOOST_TEST(ATTEMPT_ID == 1U);
 
-  const std::vector< service::QuizAnswer > ANSWERS = {
-    service::QuizAnswer{.question_id = 10, .user_answer = "paris"},
-    service::QuizAnswer{.question_id = 20, .user_answer = "wrong"}
-  };
+  const std::vector< service::QuizAnswer > ANSWERS = {service::QuizAnswer{.question_id = 10, .user_answer = "paris"},
+                                                      service::QuizAnswer{.question_id = 20, .user_answer = "wrong"}};
 
   service.submitAnswers(ATTEMPT_ID, QUESTIONS, ANSWERS);
 
@@ -129,9 +127,7 @@ BOOST_AUTO_TEST_CASE(submit_invalid_question_throws)
   const auto Q1 = makeQuestion(10, "Paris");
   const size_t ATTEMPT_ID = service.startQuiz(1, {Q1});
 
-  const std::vector< service::QuizAnswer > ANSWERS = {
-    service::QuizAnswer{.question_id = 999, .user_answer = "Paris"}
-  };
+  const std::vector< service::QuizAnswer > ANSWERS = {service::QuizAnswer{.question_id = 999, .user_answer = "Paris"}};
 
   BOOST_CHECK_THROW(service.submitAnswers(ATTEMPT_ID, {Q1}, ANSWERS), std::invalid_argument);
 }

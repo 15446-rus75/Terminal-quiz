@@ -59,7 +59,7 @@ namespace
 
     std::optional< core::Question > findById(size_t id) override
     {
-      for (const auto &q: db_questions)
+      for (const auto &q : db_questions)
       {
         if (q.id == id)
         {
@@ -74,7 +74,8 @@ namespace
       return db_questions;
     }
 
-    std::vector< core::Question > searchByText(const std::string &, core::Category, core::Difficulty, size_t limit) override
+    std::vector< core::Question > searchByText(const std::string &, core::Category, core::Difficulty,
+                                               size_t limit) override
     {
       std::vector< core::Question > res = db_questions;
       if (res.size() > limit)
@@ -82,6 +83,11 @@ namespace
         res.resize(limit);
       }
       return res;
+    }
+
+    size_t count() override
+    {
+      return db_questions.size();
     }
 
     bool fail_batch_save = false;

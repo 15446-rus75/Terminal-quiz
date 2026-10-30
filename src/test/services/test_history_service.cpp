@@ -35,7 +35,7 @@ namespace
 
     std::optional< core::Attempt > findById(size_t id) override
     {
-      for (const auto &att: attempts)
+      for (const auto &att : attempts)
       {
         if (att.id == id)
         {
@@ -48,7 +48,7 @@ namespace
     std::vector< core::Attempt > findByUserId(size_t user_id, size_t limit) override
     {
       std::vector< core::Attempt > result;
-      for (const auto &att: attempts)
+      for (const auto &att : attempts)
       {
         if (att.user_id == user_id)
         {
@@ -80,7 +80,7 @@ namespace
 
     std::optional< core::Question > findById(size_t id) override
     {
-      for (const auto &q: questions)
+      for (const auto &q : questions)
       {
         if (q.id == id)
         {
@@ -98,6 +98,11 @@ namespace
     std::vector< core::Question > searchByText(const std::string &, core::Category, core::Difficulty, size_t) override
     {
       return {};
+    }
+
+    size_t count() override
+    {
+      return questions.size();
     }
 
     std::vector< core::Question > questions;
@@ -171,7 +176,8 @@ BOOST_AUTO_TEST_CASE(existing_attempt_returns_details)
 
   core::Attempt att;
   att.id = 1;
-  att.answers = {core::AttemptAnswer{.id = 1, .attempt_id = 1, .question_id = 101, .user_answer = "Ans", .is_correct = true, .position = 0}};
+  att.answers = {core::AttemptAnswer{
+    .id = 1, .attempt_id = 1, .question_id = 101, .user_answer = "Ans", .is_correct = true, .position = 0}};
   attempt_repo->attempts = {att};
 
   service::HistoryService service(attempt_repo, q_repo);
@@ -190,7 +196,8 @@ BOOST_AUTO_TEST_CASE(missing_referenced_question_throws)
 
   core::Attempt att;
   att.id = 1;
-  att.answers = {core::AttemptAnswer{.id = 1, .attempt_id = 1, .question_id = 999, .user_answer = "Ans", .is_correct = true, .position = 0}};
+  att.answers = {core::AttemptAnswer{
+    .id = 1, .attempt_id = 1, .question_id = 999, .user_answer = "Ans", .is_correct = true, .position = 0}};
   attempt_repo->attempts = {att};
 
   service::HistoryService service(attempt_repo, q_repo);
