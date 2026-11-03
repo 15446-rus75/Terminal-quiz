@@ -54,15 +54,25 @@ namespace
     }
   };
 
+  class NotIn
+  {
+  public:
+    explicit NotIn(const std::vector< quiz::core::Question > &target): target_(target)
+    {
+    }
+
+    bool operator()(const quiz::core::Question &question) const
+    {
+      return std::ranges::find(target_, question.id, &quiz::core::Question::id) == target_.end();
+    }
+
+  private:
+    const std::vector< quiz::core::Question > &target_;
+  };
+
   void appendUnique(std::vector< quiz::core::Question > &target, const std::vector< quiz::core::Question > &more)
   {
-    for (const quiz::core::Question &question : more)
-    {
-      if (std::ranges::find(target, question.id, &quiz::core::Question::id) == target.end())
-      {
-        target.push_back(question);
-      }
-    }
+    std::ranges::copy_if(more, std::back_inserter(target), NotIn(target));
   }
 }
 

@@ -134,6 +134,25 @@ namespace
       std::chrono::duration_cast< std::chrono::seconds >(attempt.finished_at - attempt.started_at));
   }
 
+  class RowFormatter
+  {
+  public:
+    explicit RowFormatter(size_t label_width): label_width_(label_width)
+    {
+    }
+
+    std::string operator()(const StatsRow &row) const
+    {
+      return quiz::tui::padRight(row.label, label_width_) + "  " +
+             quiz::tui::padRight(std::to_string(row.attempts), ATTEMPTS_COLUMN_WIDTH) + "  " +
+             quiz::tui::padRight(scoreText(row.correct, row.questions), CORRECT_COLUMN_WIDTH) + "  " +
+             quiz::tui::formatAccuracy(row.accuracy);
+    }
+
+  private:
+    size_t label_width_;
+  };
+
   std::vector< std::string > tableLines(const std::string &first_title, const std::vector< StatsRow > &rows)
   {
     std::vector< size_t > lengths;
@@ -146,13 +165,7 @@ namespace
     lines.push_back(quiz::tui::padRight(first_title, LABEL_WIDTH) + "  " +
                     quiz::tui::padRight("Attempts", ATTEMPTS_COLUMN_WIDTH) + "  " +
                     quiz::tui::padRight("Correct", CORRECT_COLUMN_WIDTH) + "  Accuracy");
-    for (const StatsRow &row : rows)
-    {
-      lines.push_back(quiz::tui::padRight(row.label, LABEL_WIDTH) + "  " +
-                      quiz::tui::padRight(std::to_string(row.attempts), ATTEMPTS_COLUMN_WIDTH) + "  " +
-                      quiz::tui::padRight(scoreText(row.correct, row.questions), CORRECT_COLUMN_WIDTH) + "  " +
-                      quiz::tui::formatAccuracy(row.accuracy));
-    }
+    std::ranges::transform(rows, std::back_inserter(lines), RowFormatter(LABEL_WIDTH));
     return lines;
   }
 }
