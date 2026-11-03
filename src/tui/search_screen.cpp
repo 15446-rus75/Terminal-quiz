@@ -69,9 +69,9 @@ void quiz::tui::SearchScreen::offerFavorites(const std::vector< core::Question >
   }
 
   size_t added = 0;
-  for (const size_t number : *SELECTION)
+  for (const size_t NUMBER : *SELECTION)
   {
-    const size_t QUESTION_ID = questions[number - 1].id;
+    const size_t QUESTION_ID = questions[NUMBER - 1].id;
     if (!favorite_service_->isFavorite(user_id_, QUESTION_ID))
     {
       favorite_service_->add(user_id_, QUESTION_ID);

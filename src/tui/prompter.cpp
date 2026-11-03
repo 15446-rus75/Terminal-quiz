@@ -77,9 +77,9 @@ namespace
       {
         return line;
       }
-      for (const std::string_view help_line : HELP_LINES)
+      for (const std::string_view HELP_LINE : HELP_LINES)
       {
-        writeLine(terminal, std::string(help_line), quiz::tui::TextStyle::MUTED);
+        writeLine(terminal, std::string(HELP_LINE), quiz::tui::TextStyle::MUTED);
       }
     }
   }

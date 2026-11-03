@@ -105,9 +105,9 @@ void quiz::tui::FavoritesScreen::removeFavorites(const std::vector< core::Questi
     return;
   }
 
-  for (const size_t number : *SELECTION)
+  for (const size_t NUMBER : *SELECTION)
   {
-    favorite_service_->remove(user_id_, questions[number - 1].id);
+    favorite_service_->remove(user_id_, questions[NUMBER - 1].id);
   }
   renderer_.showSuccess("Removed " + std::to_string(SELECTION->size()) + " question(s) from favorites");
 }
