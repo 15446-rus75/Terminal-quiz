@@ -15,9 +15,7 @@
 quiz::tui::StatisticsScreen::StatisticsScreen(std::shared_ptr< ITerminal > terminal,
                                               std::shared_ptr< service::StatisticsService > statistics_service,
                                               size_t user_id):
-  renderer_(std::move(terminal)),
-  statistics_service_(std::move(statistics_service)),
-  user_id_(user_id)
+  renderer_(std::move(terminal)), statistics_service_(std::move(statistics_service)), user_id_(user_id)
 {
   if (statistics_service_ == nullptr)
   {

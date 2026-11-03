@@ -1,8 +1,8 @@
 #include "renderer.hpp"
 
 #include <algorithm>
-#include <chrono>
 #include <cctype>
+#include <chrono>
 #include <cstddef>
 #include <iterator>
 #include <memory>
@@ -211,8 +211,7 @@ void quiz::tui::Renderer::showQuestion(const QuestionPosition &position, const c
 {
   const size_t WIDTH = terminal_->width();
   writeLine("", TextStyle::PLAIN);
-  writeLine("Question " + std::to_string(position.number) + " of " + std::to_string(position.total),
-            TextStyle::TITLE);
+  writeLine("Question " + std::to_string(position.number) + " of " + std::to_string(position.total), TextStyle::TITLE);
   writeLine(questionMeta(question), TextStyle::MUTED);
   writeLine("", TextStyle::PLAIN);
   for (const std::string &line : prefixedLines(question.text, "", WIDTH))
@@ -236,8 +235,8 @@ void quiz::tui::Renderer::showAnswerFeedback(bool is_correct, const core::Questi
     writeLine("Correct!", TextStyle::SUCCESS);
     return;
   }
-  for (const std::string &line : prefixedLines("Wrong. Correct answer: " + question.correct_answer, "",
-                                               terminal_->width()))
+  for (const std::string &line :
+       prefixedLines("Wrong. Correct answer: " + question.correct_answer, "", terminal_->width()))
   {
     writeLine(line, TextStyle::ERROR);
   }
@@ -310,8 +309,8 @@ void quiz::tui::Renderer::showAttemptList(const std::vector< core::Attempt > &at
     const core::Attempt &attempt = attempts[i];
     writeLine(itemPrefix(i + 1, attempts.size()) + formatTimePoint(attempt.started_at) + "  " +
                 padRight(scoreText(attempt.score, attempt.total_questions), ATTEMPT_SCORE_WIDTH) + "  " +
-                padRight(formatAccuracy(ratio(attempt.score, attempt.total_questions)), ATTEMPT_ACCURACY_WIDTH) +
-                "  " + attemptDuration(attempt),
+                padRight(formatAccuracy(ratio(attempt.score, attempt.total_questions)), ATTEMPT_ACCURACY_WIDTH) + "  " +
+                attemptDuration(attempt),
               TextStyle::PLAIN);
   }
 }
