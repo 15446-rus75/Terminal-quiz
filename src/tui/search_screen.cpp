@@ -68,15 +68,9 @@ void quiz::tui::SearchScreen::offerFavorites(const std::vector< core::Question >
     return;
   }
 
-  size_t added = 0;
   for (const size_t NUMBER : *SELECTION)
   {
-    const size_t QUESTION_ID = questions[NUMBER - 1].id;
-    if (!favorite_service_->isFavorite(user_id_, QUESTION_ID))
-    {
-      favorite_service_->add(user_id_, QUESTION_ID);
-      ++added;
-    }
+    favorite_service_->add(user_id_, questions[NUMBER - 1].id);
   }
-  renderer_.showSuccess("Added " + std::to_string(added) + " question(s) to favorites");
+  renderer_.showSuccess("Added " + std::to_string(SELECTION->size()) + " question(s) to favorites");
 }

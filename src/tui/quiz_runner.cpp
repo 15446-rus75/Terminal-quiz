@@ -10,6 +10,7 @@
 #include "../services/favorite_service.hpp"
 #include "../services/quiz_service.hpp"
 #include "answer_arranger.hpp"
+#include "quit_requested.hpp"
 #include "quiz_session.hpp"
 #include "renderer.hpp"
 #include "terminal.hpp"
@@ -39,6 +40,10 @@ void quiz::tui::QuizRunner::play(const std::vector< core::Question > &questions)
   const SessionOutcome OUTCOME = session_.run(questions);
   quiz_service_->submitAnswers(ATTEMPT_ID, questions, OUTCOME.answers);
   const service::QuizResult RESULT = quiz_service_->finishQuiz(ATTEMPT_ID);
+  if (OUTCOME.quit_requested)
+  {
+    throw QuitRequested();
+  }
 
   if (OUTCOME.stopped_early)
   {

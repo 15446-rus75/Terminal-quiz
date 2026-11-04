@@ -2,6 +2,7 @@
 
 #include <array>
 #include <cstddef>
+#include <exception>
 #include <memory>
 #include <optional>
 #include <stdexcept>
@@ -42,7 +43,7 @@ namespace
       favorites.add(user_id, question_id);
       renderer.showSuccess("Added to favorites");
     }
-    catch (const std::runtime_error &error)
+    catch (const std::exception &error)
     {
       renderer.showError(std::string("Could not update favorites: ") + error.what());
     }
@@ -67,21 +68,30 @@ quiz::tui::QuizSession::QuizSession(std::shared_ptr< ITerminal > terminal,
 
 quiz::tui::SessionOutcome quiz::tui::QuizSession::run(const std::vector< core::Question > &questions)
 {
-  SessionOutcome outcome{.answers = {}, .stopped_early = false};
-  for (size_t i = 0; i < questions.size(); ++i)
+  SessionOutcome outcome{.answers = {}, .stopped_early = false, .quit_requested = false};
+  try
   {
-    const QuestionPosition POSITION{.number = i + 1, .total = questions.size()};
-    std::string answer;
-    const QuestionResult RESULT = askQuestion(questions[i], POSITION, answer);
-    if (RESULT == QuestionResult::STOPPED)
+    for (size_t i = 0; i < questions.size(); ++i)
     {
-      outcome.stopped_early = true;
-      break;
+      const QuestionPosition POSITION{.number = i + 1, .total = questions.size()};
+      std::string answer;
+      const QuestionResult RESULT = askQuestion(questions[i], POSITION, answer);
+      if (RESULT == QuestionResult::STOPPED)
+      {
+        outcome.stopped_early = true;
+        break;
+      }
+      if (RESULT == QuestionResult::ANSWERED)
+      {
+        outcome.answers.push_back(
+          service::QuizAnswer{.question_id = questions[i].id, .user_answer = std::move(answer)});
+      }
     }
-    if (RESULT == QuestionResult::ANSWERED)
-    {
-      outcome.answers.push_back(service::QuizAnswer{.question_id = questions[i].id, .user_answer = std::move(answer)});
-    }
+  }
+  catch (const QuitRequested &)
+  {
+    outcome.stopped_early = true;
+    outcome.quit_requested = true;
   }
   return outcome;
 }
