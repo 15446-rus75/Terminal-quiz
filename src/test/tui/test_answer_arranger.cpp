@@ -1,7 +1,8 @@
-#include <boost/test/unit_test.hpp>
-#include "tui/answer_arranger.hpp"
-#include "core/question.hpp"
 #include <set>
+
+#include "core/question.hpp"
+#include "tui/answer_arranger.hpp"
+#include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_SUITE(answer_arranger_tests)
 

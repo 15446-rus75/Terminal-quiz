@@ -1,6 +1,6 @@
-#include <boost/test/unit_test.hpp>
-#include "tui/forms.hpp"
 #include "test_support.hpp"
+#include "tui/forms.hpp"
+#include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_SUITE(forms_tests)
 

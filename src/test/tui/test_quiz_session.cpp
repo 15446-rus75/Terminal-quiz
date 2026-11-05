@@ -1,9 +1,9 @@
-#include <boost/test/unit_test.hpp>
-#include "tui/quiz_session.hpp"
-#include "tui/answer_arranger.hpp"
-#include "services/favorite_service.hpp"
 #include "core/enums.hpp"
+#include "services/favorite_service.hpp"
 #include "test_support.hpp"
+#include "tui/answer_arranger.hpp"
+#include "tui/quiz_session.hpp"
+#include <boost/test/unit_test.hpp>
 
 namespace
 {

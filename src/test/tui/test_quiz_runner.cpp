@@ -1,9 +1,9 @@
-#include <boost/test/unit_test.hpp>
-#include "tui/quiz_runner.hpp"
-#include "tui/answer_arranger.hpp"
-#include "services/quiz_service.hpp"
 #include "services/favorite_service.hpp"
+#include "services/quiz_service.hpp"
 #include "test_support.hpp"
+#include "tui/answer_arranger.hpp"
+#include "tui/quiz_runner.hpp"
+#include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_SUITE(quiz_runner_tests)
 

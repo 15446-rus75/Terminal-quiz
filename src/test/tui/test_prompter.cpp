@@ -1,6 +1,6 @@
-#include <boost/test/unit_test.hpp>
-#include "tui/prompter.hpp"
 #include "test_support.hpp"
+#include "tui/prompter.hpp"
+#include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_SUITE(prompter_tests)
 

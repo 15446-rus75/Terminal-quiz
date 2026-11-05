@@ -1,23 +1,23 @@
-#include <boost/test/unit_test.hpp>
 #include <memory>
 #include <optional>
 #include <stdexcept>
 #include <string>
 #include <vector>
 
+#include "api/open_tdb_client.hpp"
 #include "core/custom_test.hpp"
 #include "core/enums.hpp"
 #include "core/question.hpp"
 #include "core/statistics.hpp"
 #include "db/icustom_test_repository.hpp"
 #include "db/istatistics_repository.hpp"
-#include "api/open_tdb_client.hpp"
 #include "services/custom_test_service.hpp"
 #include "services/favorite_service.hpp"
 #include "services/history_service.hpp"
 #include "services/question_service.hpp"
 #include "services/quiz_service.hpp"
 #include "services/statistics_service.hpp"
+#include "test_support.hpp"
 #include "tui/answer_arranger.hpp"
 #include "tui/custom_test_screen.hpp"
 #include "tui/favorites_screen.hpp"
@@ -26,7 +26,7 @@
 #include "tui/quiz_screen.hpp"
 #include "tui/search_screen.hpp"
 #include "tui/statistics_screen.hpp"
-#include "test_support.hpp"
+#include <boost/test/unit_test.hpp>
 
 namespace core = quiz::core;
 namespace db = quiz::db;
@@ -110,8 +110,11 @@ namespace
 
     void remove(size_t id) override
     {
-      std::erase_if(tests, [id](const core::CustomTest &t)
-                    { return t.id == id; });
+      std::erase_if(tests,
+                    [id](const core::CustomTest &t)
+                    {
+                      return t.id == id;
+                    });
     }
 
     size_t next_id = 0;

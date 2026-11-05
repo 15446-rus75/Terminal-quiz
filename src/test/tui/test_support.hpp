@@ -5,13 +5,13 @@
 #include <optional>
 #include <string>
 #include <vector>
-#include "tui/terminal.hpp"
+
 #include "db/iattempt_repository.hpp"
 #include "db/ifavorite_repository.hpp"
 #include "db/iquestion_repository.hpp"
 #include "services/favorite_service.hpp"
 #include "services/quiz_service.hpp"
-
+#include "tui/terminal.hpp"
 
 namespace test
 {
@@ -145,8 +145,11 @@ namespace test
 
     void remove(size_t user_id, size_t question_id) override
     {
-      std::erase_if(favorites_, [user_id, question_id](const auto &pair)
-                    { return pair.first == user_id && pair.second == question_id; });
+      std::erase_if(favorites_,
+                    [user_id, question_id](const auto &pair)
+                    {
+                      return pair.first == user_id && pair.second == question_id;
+                    });
     }
 
     std::vector< quiz::core::Question > findByUserId(size_t user_id) override
@@ -215,8 +218,8 @@ namespace test
       return questions_;
     }
 
-    std::vector< quiz::core::Question > searchByText(const std::string &, quiz::core::Category,
-                                                      quiz::core::Difficulty, size_t) override
+    std::vector< quiz::core::Question > searchByText(const std::string &, quiz::core::Category, quiz::core::Difficulty,
+                                                     size_t) override
     {
       return questions_;
     }

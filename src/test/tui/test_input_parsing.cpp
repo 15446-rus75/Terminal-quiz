@@ -1,5 +1,5 @@
-#include <boost/test/unit_test.hpp>
 #include "tui/input_parsing.hpp"
+#include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_SUITE(input_parsing_tests)
 
@@ -48,11 +48,11 @@ BOOST_AUTO_TEST_CASE(parse_number_valid)
   const auto result1 = quiz::tui::parseNumber("5", range);
   BOOST_REQUIRE(result1.has_value());
   BOOST_CHECK_EQUAL(*result1, 5);
-  
+
   const auto result2 = quiz::tui::parseNumber("1", range);
   BOOST_REQUIRE(result2.has_value());
   BOOST_CHECK_EQUAL(*result2, 1);
-  
+
   const auto result3 = quiz::tui::parseNumber("10", range);
   BOOST_REQUIRE(result3.has_value());
   BOOST_CHECK_EQUAL(*result3, 10);

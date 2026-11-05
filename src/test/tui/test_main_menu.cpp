@@ -1,7 +1,7 @@
-#include <boost/test/unit_test.hpp>
+#include "test_support.hpp"
 #include "tui/main_menu.hpp"
 #include "tui/screen.hpp"
-#include "test_support.hpp"
+#include <boost/test/unit_test.hpp>
 
 namespace
 {

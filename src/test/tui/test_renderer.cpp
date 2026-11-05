@@ -1,8 +1,8 @@
-#include <boost/test/unit_test.hpp>
-#include "tui/renderer.hpp"
-#include "core/question.hpp"
 #include "core/attempt.hpp"
+#include "core/question.hpp"
 #include "test_support.hpp"
+#include "tui/renderer.hpp"
+#include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_SUITE(renderer_tests)
 

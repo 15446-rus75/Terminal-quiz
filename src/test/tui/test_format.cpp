@@ -1,6 +1,7 @@
-#include <boost/test/unit_test.hpp>
-#include "tui/format.hpp"
 #include <chrono>
+
+#include "tui/format.hpp"
+#include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_SUITE(format_tests)
 
