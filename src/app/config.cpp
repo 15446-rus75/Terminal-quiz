@@ -1,5 +1,6 @@
 #include "config.hpp"
 
+#include <algorithm>
 #include <cctype>
 #include <cstdlib>
 #include <string>
@@ -22,12 +23,17 @@ namespace
     return value;
   }
 
+  struct Lowerer
+  {
+    char operator()(unsigned char ch) const
+    {
+      return static_cast< char >(std::tolower(ch));
+    }
+  };
+
   std::string toLower(std::string text)
   {
-    for (char &ch : text)
-    {
-      ch = static_cast< char >(std::tolower(static_cast< unsigned char >(ch)));
-    }
+    std::ranges::transform(text, text.begin(), Lowerer{});
     return text;
   }
 
