@@ -584,7 +584,7 @@ BOOST_AUTO_TEST_CASE(overall_statistics_are_weighted_and_exclude_unfinished_and_
   BOOST_CHECK_EQUAL(VALUE.total_attempts, 2);
   BOOST_CHECK_EQUAL(VALUE.total_questions, 4);
   BOOST_CHECK_EQUAL(VALUE.total_correct, 2);
-  BOOST_CHECK_CLOSE(VALUE.overall_accuracy, 50.0, 1e-8);
+  BOOST_CHECK_CLOSE(VALUE.overall_accuracy, 0.5, 1e-8);
 }
 
 BOOST_AUTO_TEST_CASE(grouped_statistics_count_attempts_once_per_group)
@@ -606,11 +606,11 @@ BOOST_AUTO_TEST_CASE(grouped_statistics_count_attempts_once_per_group)
   BOOST_CHECK_EQUAL(CATEGORIES[1].total_attempts, 1);
   BOOST_CHECK_EQUAL(CATEGORIES[1].total_questions, 2);
   BOOST_CHECK_EQUAL(CATEGORIES[1].total_correct, 1);
-  BOOST_CHECK_CLOSE(CATEGORIES[1].accuracy, 50.0, 1e-8);
+  BOOST_CHECK_CLOSE(CATEGORIES[1].accuracy, 0.5, 1e-8);
   const auto DIFFICULTIES = statistics.getByDifficulty(USER);
   BOOST_REQUIRE_EQUAL(DIFFICULTIES.size(), 2);
   BOOST_CHECK(DIFFICULTIES[0].difficulty == core::Difficulty::EASY);
-  BOOST_CHECK_CLOSE(DIFFICULTIES[1].accuracy, 100.0, 1e-8);
+  BOOST_CHECK_CLOSE(DIFFICULTIES[1].accuracy, 1.0, 1e-8);
 }
 
 BOOST_AUTO_TEST_CASE(zero_question_finished_attempt_has_zero_accuracy)
