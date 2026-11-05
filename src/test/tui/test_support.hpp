@@ -12,13 +12,15 @@
 #include "services/favorite_service.hpp"
 #include "services/quiz_service.hpp"
 
+
 namespace test
 {
   class FakeTerminal: public quiz::tui::ITerminal
   {
   public:
-    std::optional< std::string > readLine(const std::string &) override
+    std::optional< std::string > readLine(const std::string &prompt) override
     {
+      output_ += prompt;
       if (input_lines_.empty())
       {
         return std::nullopt;
@@ -124,8 +126,9 @@ namespace test
       return attempts_;
     }
 
-  private:
     std::vector< quiz::core::Attempt > attempts_;
+
+  private:
     size_t next_id_ = 1;
   };
 
@@ -146,9 +149,24 @@ namespace test
                     { return pair.first == user_id && pair.second == question_id; });
     }
 
-    std::vector< quiz::core::Question > findByUserId(size_t) override
+    std::vector< quiz::core::Question > findByUserId(size_t user_id) override
     {
-      return {};
+      std::vector< quiz::core::Question > result;
+      for (const auto &pair : favorites_)
+      {
+        if (pair.first == user_id)
+        {
+          quiz::core::Question q;
+          q.id = pair.second;
+          q.category = quiz::core::Category::GENERAL_KNOWLEDGE;
+          q.difficulty = quiz::core::Difficulty::EASY;
+          q.type = quiz::core::QuestionType::MULTIPLE;
+          q.text = "Favorite question " + std::to_string(pair.second);
+          q.correct_answer = "A";
+          result.push_back(q);
+        }
+      }
+      return result;
     }
 
     bool exists(size_t user_id, size_t question_id) override
