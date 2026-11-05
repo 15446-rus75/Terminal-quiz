@@ -4,8 +4,14 @@
 #include <cstdlib>
 #include <string>
 
+#include "../util/logger.hpp"
+
 namespace
 {
+  constexpr long MAX_PORT = 65535;
+  constexpr unsigned short DEFAULT_DB_PORT = 5432;
+  constexpr std::size_t DEFAULT_CACHE_CAPACITY = 100;
+
   std::string envOr(const char *name, const std::string &fallback)
   {
     const char *value = std::getenv(name);
@@ -30,7 +36,7 @@ namespace
     try
     {
       const long PARSED = std::stol(text);
-      if (PARSED <= 0 || PARSED > 65535)
+      if (PARSED <= 0 || PARSED > MAX_PORT)
       {
         return fallback;
       }
@@ -100,11 +106,11 @@ quiz::app::AppConfig quiz::app::defaultConfig()
 {
   AppConfig config;
   config.db_host = "localhost";
-  config.db_port = 5432;
+  config.db_port = DEFAULT_DB_PORT;
   config.db_name = "quiz";
   config.db_user = "quiz";
   config.db_password = "quiz";
-  config.cache_capacity = 100;
+  config.cache_capacity = DEFAULT_CACHE_CAPACITY;
   config.user_id = 1;
   config.use_colors = true;
   config.log_level = util::LogLevel::INFO;
