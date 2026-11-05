@@ -1,5 +1,5 @@
 CXX            ?= g++
-TEST_CXXFLAGS  ?= -std=c++20 -Wall -Wextra -Wpedantic -O0 -g
+TEST_CXXFLAGS  ?= -std=c++23 -Wall -Wextra -Wpedantic -O0 -g
 BOOST_FLAGS    ?= -DBOOST_TEST_DYN_LINK
 BOOST_LIBS     ?= -lboost_unit_test_framework
 THREAD_FLAGS   ?= -pthread
