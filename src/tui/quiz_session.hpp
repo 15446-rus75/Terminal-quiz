@@ -21,6 +21,7 @@ namespace quiz
     {
       std::vector< service::QuizAnswer > answers;
       bool stopped_early;
+      bool quit_requested;
     };
 
     class QuizSession
