@@ -21,7 +21,6 @@
 namespace
 {
   constexpr long long int MICROSECONDS_PER_SECOND = 1000000;
-  constexpr double PERCENT = 100.0;
   constexpr size_t INSERT_BATCH_SIZE = 128;
   constexpr size_t QUESTION_COLUMN_COUNT = 6;
   constexpr size_t QUESTION_ANSWER_COLUMN_COUNT = 2;
@@ -453,5 +452,5 @@ std::vector< quiz::core::Attempt > quiz::db::detail::readAttempts(IConnection &c
 
 double quiz::db::detail::accuracy(size_t correct, size_t total)
 {
-  return total == 0 ? 0.0 : PERCENT * static_cast< double >(correct) / static_cast< double >(total);
+  return total == 0 ? 0.0 : static_cast< double >(correct) / static_cast< double >(total);
 }

@@ -155,8 +155,8 @@ BOOST_AUTO_TEST_CASE(search_patterns_escape_only_sql_wildcards)
 BOOST_AUTO_TEST_CASE(accuracy_has_percent_units_and_handles_zero_denominator)
 {
   BOOST_CHECK_SMALL(db::detail::accuracy(0, 0), 1e-10);
-  BOOST_CHECK_CLOSE(db::detail::accuracy(1, 4), 25.0, 1e-8);
-  BOOST_CHECK_CLOSE(db::detail::accuracy(2, 3), 200.0 / 3.0, 1e-8);
+  BOOST_CHECK_CLOSE(db::detail::accuracy(1, 4), 0.25, 1e-8);
+  BOOST_CHECK_CLOSE(db::detail::accuracy(2, 3), 2.0 / 3.0, 1e-8);
 }
 
 BOOST_AUTO_TEST_CASE(stored_questions_require_concrete_enums)
