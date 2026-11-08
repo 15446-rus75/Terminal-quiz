@@ -6,6 +6,7 @@
 #include <ctime>
 #include <iomanip>
 #include <ios>
+#include <optional>
 #include <ranges>
 #include <sstream>
 #include <string>
@@ -22,6 +23,23 @@ namespace
   constexpr std::chrono::seconds::rep SECONDS_PER_HOUR = 3600;
   constexpr const char *TIME_FORMAT = "%Y-%m-%d %H:%M";
   constexpr const char *UNKNOWN_TIME = "-";
+
+  std::optional< std::tm > toLocalTime(std::time_t raw)
+  {
+    std::tm local{};
+#if defined(_WIN32)
+    if (localtime_s(&local, &raw) != 0)
+    {
+      return std::nullopt;
+    }
+#else
+    if (localtime_r(&raw, &local) == nullptr)
+    {
+      return std::nullopt;
+    }
+#endif
+    return local;
+  }
 
   struct IsContinuationByte
   {
@@ -100,13 +118,13 @@ std::string quiz::tui::formatTimePoint(std::chrono::system_clock::time_point tim
   }
 
   const std::time_t RAW = std::chrono::system_clock::to_time_t(time);
-  std::tm local{};
-  if (localtime_r(&RAW, &local) == nullptr)
+  const std::optional< std::tm > LOCAL = toLocalTime(RAW);
+  if (!LOCAL.has_value())
   {
     return UNKNOWN_TIME;
   }
   std::ostringstream stream;
-  stream << std::put_time(&local, TIME_FORMAT);
+  stream << std::put_time(&*LOCAL, TIME_FORMAT);
   return stream.str();
 }
 
