@@ -96,9 +96,7 @@ namespace
 }
 
 quiz::tui::StreamTerminal::StreamTerminal(std::istream &input, std::ostream &output, bool use_colors):
-  input_(input),
-  output_(output),
-  use_colors_(prepareConsole() && use_colors)
+  input_(input), output_(output), use_colors_(prepareConsole() && use_colors)
 {
 }
 

@@ -129,8 +129,8 @@ std::string quiz::tui::formatDuration(std::chrono::seconds duration)
   std::ostringstream stream;
   if (HOURS > 0)
   {
-    stream << HOURS << "h " << std::setfill('0') << std::setw(TWO_DIGITS) << MINUTES << "m "
-           << std::setw(TWO_DIGITS) << SECONDS << 's';
+    stream << HOURS << "h " << std::setfill('0') << std::setw(TWO_DIGITS) << MINUTES << "m " << std::setw(TWO_DIGITS)
+           << SECONDS << 's';
   }
   else if (MINUTES > 0)
   {
@@ -142,4 +142,3 @@ std::string quiz::tui::formatDuration(std::chrono::seconds duration)
   }
   return stream.str();
 }
-
