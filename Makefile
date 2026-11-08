@@ -125,6 +125,7 @@ check-cppcheck:
 	  --std=c++20 --language=c++ \
 	  --error-exitcode=1 \
 	  --suppress=preprocessorErrorDirective:src/db/postgres_database.cpp \
+	  $(INCLUDES) \
 	  -i $(TEST_DIR) \
 	  $(SRC_DIR)/
 
