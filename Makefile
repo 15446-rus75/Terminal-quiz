@@ -1,13 +1,58 @@
+ifndef PLATFORM
+  UNAME_S := $(shell uname -s 2>/dev/null)
+  ifeq ($(OS),Windows_NT)
+    PLATFORM := windows
+  else ifneq ($(filter MINGW% MSYS% CYGWIN%,$(UNAME_S)),)
+    PLATFORM := windows
+  else ifeq ($(UNAME_S),Darwin)
+    PLATFORM := macos
+  else
+    PLATFORM := linux
+  endif
+endif
+
+PKG_CONFIG ?= pkg-config
+EXEEXT     :=
+PLATFORM_THREAD_FLAGS := -pthread
+PLATFORM_CPPFLAGS     :=
+PLATFORM_LDFLAGS      :=
+PLATFORM_LIBS         :=
+
+ifeq ($(PLATFORM),windows)
+  EXEEXT := .exe
+  PLATFORM_LIBS := -lws2_32
+  PLATFORM_CPPFLAGS := -DNOGDI -DNOMINMAX -DWIN32_LEAN_AND_MEAN
+endif
+
+ifeq ($(PLATFORM),macos)
+  PLATFORM_THREAD_FLAGS :=
+  BREW_PREFIX := $(shell brew --prefix 2>/dev/null)
+  ifneq ($(BREW_PREFIX),)
+    LIBPQ_PREFIX := $(shell brew --prefix libpq 2>/dev/null)
+    PLATFORM_CPPFLAGS := -I$(BREW_PREFIX)/include
+    PLATFORM_LDFLAGS  := -L$(BREW_PREFIX)/lib
+    ifneq ($(wildcard $(LIBPQ_PREFIX)/include),)
+      PLATFORM_CPPFLAGS += -I$(LIBPQ_PREFIX)/include
+      PLATFORM_LDFLAGS  += -L$(LIBPQ_PREFIX)/lib
+    endif
+    ifndef BOOST_ROOT
+      ifneq ($(wildcard $(BREW_PREFIX)/include/boost),)
+        BOOST_ROOT := $(BREW_PREFIX)
+      endif
+    endif
+  endif
+endif
+
 CXX           := g++
-CXXFLAGS_BASE := -std=c++23 -Wall -Wextra -Wpedantic -pthread
+CXXFLAGS_BASE := -std=c++23 -Wall -Wextra -Wpedantic $(PLATFORM_THREAD_FLAGS)
 CXXFLAGS      := $(CXXFLAGS_BASE) -O2 -g -MMD -MP
-INCLUDES      := -Isrc
-LIBS          := -lpqxx -lpq -lcurl
+INCLUDES      := -Isrc $(PLATFORM_CPPFLAGS)
+LIBS          := $(PLATFORM_LDFLAGS) -lpqxx -lpq -lcurl $(PLATFORM_LIBS)
 
 SRC_DIR   := src
 TEST_DIR  := $(SRC_DIR)/test
 BUILD_DIR := build
-BIN       := $(BUILD_DIR)/terminal_quiz
+BIN       := $(BUILD_DIR)/terminal_quiz$(EXEEXT)
 
 ALL_FILES    := $(shell find $(SRC_DIR) -type f 2>/dev/null)
 FORMAT_FILES := $(filter %.cpp %.hpp %.h,$(ALL_FILES))
@@ -22,7 +67,7 @@ TEST_CXXFLAGS  := $(CXXFLAGS_BASE) -O0 -g
 TEST_BUILD_DIR := $(CURDIR)/$(BUILD_DIR)/test
 TEST_MODULES   := $(patsubst $(TEST_DIR)/%/Makefile,%,$(wildcard $(TEST_DIR)/*/Makefile))
 
-export CXX TEST_CXXFLAGS LIBS BOOST_FLAGS BOOST_LIBS TEST_BUILD_DIR
+export CXX TEST_CXXFLAGS LIBS BOOST_FLAGS BOOST_LIBS TEST_BUILD_DIR EXEEXT PLATFORM BOOST_ROOT
 
 .DEFAULT_GOAL := build
 .PHONY: all build run clean test check-format check-headers check-tidy check-cppcheck check-all fix-format

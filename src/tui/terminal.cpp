@@ -8,10 +8,25 @@
 #include <stdexcept>
 #include <string>
 #include <string_view>
+
+#if defined(_WIN32)
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#ifndef NOGDI
+#define NOGDI
+#endif
+#include <windows.h>
+#else
+#if defined(__linux__)
+#include <asm-generic/ioctls.h>
+#endif
 #include <sys/ioctl.h>
 #include <unistd.h>
-
-#include <asm-generic/ioctls.h>
+#endif
 
 namespace
 {
@@ -37,10 +52,51 @@ namespace
     }
     throw std::invalid_argument("Unknown text style");
   }
+
+#if defined(_WIN32)
+  bool prepareConsole()
+  {
+    SetConsoleOutputCP(CP_UTF8);
+    SetConsoleCP(CP_UTF8);
+
+    const HANDLE OUTPUT_HANDLE = GetStdHandle(STD_OUTPUT_HANDLE);
+    DWORD mode = 0;
+    if (OUTPUT_HANDLE == INVALID_HANDLE_VALUE || GetConsoleMode(OUTPUT_HANDLE, &mode) == 0)
+    {
+      return false;
+    }
+    return SetConsoleMode(OUTPUT_HANDLE, mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING) != 0;
+  }
+
+  size_t terminalColumns()
+  {
+    CONSOLE_SCREEN_BUFFER_INFO info{};
+    if (GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &info) == 0)
+    {
+      return 0;
+    }
+    return static_cast< size_t >(info.srWindow.Right - info.srWindow.Left + 1);
+  }
+#else
+  bool prepareConsole()
+  {
+    return true;
+  }
+
+  size_t terminalColumns()
+  {
+    winsize size{};
+    if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &size) != 0)
+    {
+      return 0;
+    }
+    return size.ws_col;
+  }
+#endif
 }
 
 quiz::tui::StreamTerminal::StreamTerminal(std::istream &input, std::ostream &output, bool use_colors):
-  input_(input), output_(output), use_colors_(use_colors)
+  input_(input), output_(output), use_colors_(prepareConsole() && use_colors)
 {
 }
 
@@ -82,10 +138,10 @@ void quiz::tui::StreamTerminal::clear()
 
 size_t quiz::tui::StreamTerminal::width() const
 {
-  winsize size{};
-  if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &size) != 0 || size.ws_col == 0)
+  const size_t COLUMNS = terminalColumns();
+  if (COLUMNS == 0)
   {
     return DEFAULT_WIDTH;
   }
-  return std::max(static_cast< size_t >(size.ws_col), MIN_WIDTH);
+  return std::max(COLUMNS, MIN_WIDTH);
 }
