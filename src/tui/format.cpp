@@ -6,6 +6,7 @@
 #include <ctime>
 #include <iomanip>
 #include <ios>
+#include <optional>
 #include <ranges>
 #include <sstream>
 #include <string>
@@ -23,13 +24,21 @@ namespace
   constexpr const char *TIME_FORMAT = "%Y-%m-%d %H:%M";
   constexpr const char *UNKNOWN_TIME = "-";
 
-  bool toLocalTime(std::time_t raw, std::tm &local)
+  std::optional< std::tm > toLocalTime(std::time_t raw)
   {
+    std::tm local{};
 #if defined(_WIN32)
-    return localtime_s(&local, &raw) == 0;
+    if (localtime_s(&local, &raw) != 0)
+    {
+      return std::nullopt;
+    }
 #else
-    return localtime_r(&raw, &local) != nullptr;
+    if (localtime_r(&raw, &local) == nullptr)
+    {
+      return std::nullopt;
+    }
 #endif
+    return local;
   }
 
   struct IsContinuationByte
@@ -109,13 +118,13 @@ std::string quiz::tui::formatTimePoint(std::chrono::system_clock::time_point tim
   }
 
   const std::time_t RAW = std::chrono::system_clock::to_time_t(time);
-  std::tm local{};
-  if (!toLocalTime(RAW, local))
+  const std::optional< std::tm > LOCAL = toLocalTime(RAW);
+  if (!LOCAL.has_value())
   {
     return UNKNOWN_TIME;
   }
   std::ostringstream stream;
-  stream << std::put_time(&local, TIME_FORMAT);
+  stream << std::put_time(&*LOCAL, TIME_FORMAT);
   return stream.str();
 }
 
@@ -129,8 +138,8 @@ std::string quiz::tui::formatDuration(std::chrono::seconds duration)
   std::ostringstream stream;
   if (HOURS > 0)
   {
-    stream << HOURS << "h " << std::setfill('0') << std::setw(TWO_DIGITS) << MINUTES << "m " << std::setw(TWO_DIGITS)
-           << SECONDS << 's';
+    stream << HOURS << "h " << std::setfill('0') << std::setw(TWO_DIGITS) << MINUTES << "m "
+           << std::setw(TWO_DIGITS) << SECONDS << 's';
   }
   else if (MINUTES > 0)
   {
