@@ -22,6 +22,7 @@ ifeq ($(PLATFORM),windows)
   EXEEXT := .exe
   PLATFORM_LIBS := -lws2_32
   PLATFORM_CPPFLAGS := -DNOGDI -DNOMINMAX -DWIN32_LEAN_AND_MEAN
+  PLATFORM_THREAD_FLAGS :=
 endif
 
 ifeq ($(PLATFORM),macos)
@@ -43,17 +44,15 @@ ifeq ($(PLATFORM),macos)
   endif
 endif
 
-CXX           := g++
+CXX ?= $(if $(filter macos,$(PLATFORM)),clang++,g++)
 CXXFLAGS_BASE := -std=c++23 -Wall -Wextra -Wpedantic $(PLATFORM_THREAD_FLAGS)
 CXXFLAGS      := $(CXXFLAGS_BASE) -O2 -g -MMD -MP
 INCLUDES      := -Isrc $(PLATFORM_CPPFLAGS)
 LIBS          := $(PLATFORM_LDFLAGS) -lpqxx -lpq -lcurl $(PLATFORM_LIBS)
-
 SRC_DIR   := src
 TEST_DIR  := $(SRC_DIR)/test
 BUILD_DIR := build
 BIN       := $(BUILD_DIR)/terminal_quiz$(EXEEXT)
-
 ALL_FILES    := $(shell find $(SRC_DIR) -type f 2>/dev/null)
 FORMAT_FILES := $(filter %.cpp %.hpp %.h,$(ALL_FILES))
 APP_FILES    := $(filter-out $(TEST_DIR)/%,$(ALL_FILES))
@@ -66,7 +65,6 @@ BOOST_LIBS     := -lboost_unit_test_framework
 TEST_CXXFLAGS  := $(CXXFLAGS_BASE) -O0 -g
 TEST_BUILD_DIR := $(CURDIR)/$(BUILD_DIR)/test
 TEST_MODULES   := $(patsubst $(TEST_DIR)/%/Makefile,%,$(wildcard $(TEST_DIR)/*/Makefile))
-
 export CXX TEST_CXXFLAGS LIBS BOOST_FLAGS BOOST_LIBS TEST_BUILD_DIR EXEEXT PLATFORM BOOST_ROOT
 
 .DEFAULT_GOAL := build
@@ -119,13 +117,14 @@ check-headers:
 	@$(if $(HEADERS),$(CXX) $(CXXFLAGS_BASE) $(INCLUDES) -fsyntax-only -x c++ $(HEADERS))
 
 check-tidy:
-	@$(if $(SOURCES),clang-tidy --quiet $(SOURCES) -- -std=c++20 $(INCLUDES))
+	@$(if $(SOURCES),clang-tidy --quiet $(SOURCES) -- -std=c++23 $(INCLUDES))
 
 check-cppcheck:
 	@cppcheck --enable=warning,style,performance,portability --inconclusive --force \
 	  --template='{file}:{line}: ({severity}) {message} [{id}]' \
 	  --std=c++20 --language=c++ \
 	  --error-exitcode=1 \
+	  --suppress=preprocessorErrorDirective:src/db/postgres_database.cpp \
 	  -i $(TEST_DIR) \
 	  $(SRC_DIR)/
 

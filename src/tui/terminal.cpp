@@ -21,9 +21,6 @@
 #endif
 #include <windows.h>
 #else
-#if defined(__linux__)
-#include <asm-generic/ioctls.h>
-#endif
 #include <sys/ioctl.h>
 #include <unistd.h>
 #endif
@@ -86,6 +83,7 @@ namespace
   size_t terminalColumns()
   {
     winsize size{};
+    // NOLINTNEXTLINE(misc-include-cleaner)
     if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &size) != 0)
     {
       return 0;
@@ -98,6 +96,9 @@ namespace
 quiz::tui::StreamTerminal::StreamTerminal(std::istream &input, std::ostream &output, bool use_colors):
   input_(input), output_(output), use_colors_(prepareConsole() && use_colors)
 {
+#if defined(_WIN32)
+  prepareConsole();
+#endif
 }
 
 std::optional< std::string > quiz::tui::StreamTerminal::readLine(const std::string &prompt)
