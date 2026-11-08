@@ -16,6 +16,9 @@
 #ifndef NOMINMAX
 #define NOMINMAX
 #endif
+#ifndef NOGDI
+#define NOGDI
+#endif
 #include <windows.h>
 #else
 #if defined(__linux__)
@@ -144,4 +147,3 @@ size_t quiz::tui::StreamTerminal::width() const
   }
   return std::max(COLUMNS, MIN_WIDTH);
 }
-

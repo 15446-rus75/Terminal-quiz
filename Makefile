@@ -21,6 +21,7 @@ PLATFORM_LIBS         :=
 ifeq ($(PLATFORM),windows)
   EXEEXT := .exe
   PLATFORM_LIBS := -lws2_32
+  PLATFORM_CPPFLAGS := -DNOGDI -DNOMINMAX -DWIN32_LEAN_AND_MEAN
 endif
 
 ifeq ($(PLATFORM),macos)
