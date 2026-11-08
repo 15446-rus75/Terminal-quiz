@@ -23,6 +23,15 @@ namespace
   constexpr const char *TIME_FORMAT = "%Y-%m-%d %H:%M";
   constexpr const char *UNKNOWN_TIME = "-";
 
+  bool toLocalTime(std::time_t raw, std::tm &local)
+  {
+#if defined(_WIN32)
+    return localtime_s(&local, &raw) == 0;
+#else
+    return localtime_r(&raw, &local) != nullptr;
+#endif
+  }
+
   struct IsContinuationByte
   {
     bool operator()(unsigned char ch) const
@@ -101,7 +110,7 @@ std::string quiz::tui::formatTimePoint(std::chrono::system_clock::time_point tim
 
   const std::time_t RAW = std::chrono::system_clock::to_time_t(time);
   std::tm local{};
-  if (localtime_r(&RAW, &local) == nullptr)
+  if (!toLocalTime(RAW, local))
   {
     return UNKNOWN_TIME;
   }
@@ -120,8 +129,8 @@ std::string quiz::tui::formatDuration(std::chrono::seconds duration)
   std::ostringstream stream;
   if (HOURS > 0)
   {
-    stream << HOURS << "h " << std::setfill('0') << std::setw(TWO_DIGITS) << MINUTES << "m " << std::setw(TWO_DIGITS)
-           << SECONDS << 's';
+    stream << HOURS << "h " << std::setfill('0') << std::setw(TWO_DIGITS) << MINUTES << "m "
+           << std::setw(TWO_DIGITS) << SECONDS << 's';
   }
   else if (MINUTES > 0)
   {
@@ -133,3 +142,4 @@ std::string quiz::tui::formatDuration(std::chrono::seconds duration)
   }
   return stream.str();
 }
+
